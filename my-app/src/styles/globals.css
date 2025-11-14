@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+/* 커스텀 폰트 import (예: Google Fonts) */
+@import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap');
+

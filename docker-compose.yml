@@ -1,0 +1,14 @@
+version: "3"
+services:
+    front:
+      build:
+        context: ./my-app
+        dockerfile: ./Dockerfile
+      networks:
+      - nat
+      restart: always
+      ports:
+      - 80:80
+
+networks:
+  nat:

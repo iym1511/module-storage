@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* 기본 설정 */
+    "target": "es2020", // 최신 Node.js 버전과 호환되는 JavaScript 버전으로 컴파일
+    "module": "commonjs", // Node.js의 표준 모듈 시스템
+    "strict": true, // 모든 엄격한 타입-체킹 옵션 활성화
+    "esModuleInterop": true, // CommonJS 모듈을 ES6 모듈처럼 import 할 수 있게 함 (Express 사용 시 필수)
+    "skipLibCheck": true, // 모든 선언 파일(*.d.ts)의 타입 검사를 건너뜀
+    "forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자를 구분하도록 강제
+
+    /* 프로젝트 구조 */
+    "rootDir": "./src", // TypeScript 소스 파일이 있는 루트 폴더
+    "outDir": "./dist", // 컴파일된 JavaScript 파일이 저장될 폴더
+
+    /* 소스맵 (디버깅용) */
+    "sourceMap": true,
+
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"], // 컴파일할 파일 범위 (src 폴더 아래의 모든 파일)
+  "exclude": ["node_modules"] // 컴파일에서 제외할 폴더
+}
