@@ -2,11 +2,9 @@ import React, {ReactNode} from 'react';
 
 interface Props {
     children: ReactNode;
-    nav: ReactNode;
-    modal: ReactNode;
 }
 
-function Layout({ children, nav }: Props) {
+function Layout({ children }: Props) {
     return (
         <div>
             {children}

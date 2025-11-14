@@ -10,7 +10,6 @@ interface Props {
 function Layout({ children}: Props) {
     return (
         <div>
-
             <div>
                 {children}
             </div>
