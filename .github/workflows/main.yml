@@ -4,11 +4,21 @@ on:
       branches: [ main, dev ]
     pull_request:
       branches: [ main ]
-      paths:
-        - "**.js"
-      paths-ignore: 
-        - "doc/**"
+#    paths:
+#      - 'backend/**'
+#      - '!**/*.md'  # md 파일 제외는 이렇게
+
 jobs:
+  detect-changes: # 변경사항 감지
+  deploy-frontend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    # my-app 배포
+
+  deploy-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+
   build:
     strategy: # 여러 환경에서 테스트/배포를 위해서 빌트 matrix를 구성한다. 현재 다양한 node 버전에서 같은 job을 실행할 수도있다
       matrix:

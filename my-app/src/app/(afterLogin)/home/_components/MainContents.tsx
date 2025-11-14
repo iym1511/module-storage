@@ -1,7 +1,7 @@
 'use client';
 import React, {useEffect, useState} from 'react';
-import {apiTest} from "@/fetchData/fetch-get";
-import {refreshAccessToken } from "@/fetchData/token";
+
+import {apiTest} from "../../../../fetchData/fetch-get";
 
 interface AryType {
     id: number;
