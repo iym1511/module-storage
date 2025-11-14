@@ -132,7 +132,7 @@ export async function middleware(request: NextRequest) {
     const accessToken = request.cookies.get("access_token")?.value;
     const refreshToken = request.cookies.get("refresh_token")?.value;
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-
+    console.log("git ci/cd 테스트용 콘솔로그");
     // 로그인 페이지는 통과
     if (request.nextUrl.pathname === "/login") {
         return NextResponse.next();
