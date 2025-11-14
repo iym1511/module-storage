@@ -1,0 +1,46 @@
+name: learn-github-actions
+on:
+    push:
+      branches: [ main, dev ]
+    pull_request:
+      branches: [ main ]
+      paths:
+        - "**.js"
+      paths-ignore: 
+        - "doc/**"
+jobs:
+  build:
+    strategy: # 여러 환경에서 테스트/배포를 위해서 빌트 matrix를 구성한다. 현재 다양한 node 버전에서 같은 job을 실행할 수도있다
+      matrix:
+        node-version: [10.x, 12.x]
+
+    runs-on: ubuntu-latest # 해당 job을 어떤 OS에서 실행할 것인지 명시
+    steps: # job이 가질 수 있는 동작의 나열. 각각의 step은 독립적인 프로세스를 가진다.
+      - name: Checkout source code # step의 이름
+        uses: actions/checkout@v2 # 해당 strp에서 사용할 액션. Github 마켓플레이스에 올라온 action들을 사용할 수도 있다  {owner}/{repo}@{ref|version} 의 형태를 지닌다.
+        
+      - name: My First Step
+        run:
+          npm install
+          npm test
+          npm build
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v1
+        id: yarn-cache
+        with: # 해당 action에 의해 정의되는 input 파라미터. key/value 페어로 되어 있다. input 파라미터는 환경 변수로 설정되고, 'INPUT_' 이라는 prefix가 붙는다
+          path: node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
