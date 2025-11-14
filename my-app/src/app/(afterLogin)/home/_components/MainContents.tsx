@@ -1,16 +1,12 @@
 'use client';
 import React, {useEffect, useState} from 'react';
 
-import {apiTest} from "../../../../fetchData/fetch-get";
+import {apiTest, UserType} from "../../../../fetchData/fetch-get";
 
-interface AryType {
-    id: number;
-    name: string;
-}
 
 function MainContents() {
 
-    const [ary, setAry] = useState<AryType[]>([]);
+    const [ary, setAry] = useState<UserType[] | null>();
 
 
     const fetchData = async () => {
@@ -31,7 +27,7 @@ function MainContents() {
             3시30분 제일전기
             <h1>홈 페이지입니다~</h1>
             <button onClick={리프래시토큰재발급}>리프래시 토큰 발급</button>
-            {ary.map((item, index) => (
+            {ary?.map((item, index) => (
                 <div key={index}>
                     <h3>{item.id}</h3>
                     <p>{item.name}</p>

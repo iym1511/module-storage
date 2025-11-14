@@ -1,6 +1,6 @@
 import {createKy} from "@/util/api";
 
-interface UserType {
+export interface UserType {
     created_at : string;
     email : string;
     id: string;
@@ -10,7 +10,7 @@ interface UserType {
 
 export const apiTest = async () => {
     try {
-        const data = await createKy().get("get-users").json<UserType>();
+        const data = await createKy().get("get-users").json<UserType[]>();
 
         console.log("✅ API 결과:", data);
         return data;
