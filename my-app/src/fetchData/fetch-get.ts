@@ -6,8 +6,8 @@ export const apiTest = async () => {
 
         console.log("✅ API 결과:", data);
         return data;
-    } catch (error: any) {
-        console.error("❌ ky 요청 실패:", error.message || error);
+    } catch (error: unknown) {
+        console.error("❌ ky 요청 실패:", error);
         throw error;
     }
 };

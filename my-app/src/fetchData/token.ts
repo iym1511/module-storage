@@ -16,7 +16,7 @@ export async function verifyToken(token: string) {
         console.log(res)
         const data = await res.json();
         return data.valid; // API에서 true/false로 반환한다고 가정
-    } catch (e) {
+    } catch (e : unknown) {
         console.error("verifyToken error:", e);
         return false;
     }
@@ -46,7 +46,7 @@ export const refreshAccessToken = async (
         }
 
         return res;
-    } catch (e: any) {
+    } catch (e: unknown) {
         console.error("refreshAccessToken error:", e);
         throw e;
     }

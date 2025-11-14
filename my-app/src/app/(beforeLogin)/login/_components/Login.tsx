@@ -53,7 +53,7 @@ function Login() {
 
             const data = await res.json();
             console.log('회원가입 성공:', data)
-        }catch(e: any) {
+        }catch(e: unknown) {
             console.error('회원가입 실패:', e);
         }
     }
@@ -69,7 +69,7 @@ function Login() {
             });
             console.log(res);
             router.push('/home');
-        }catch (e: any) {
+        }catch (e: unknown) {
             console.error('로그인 실패:', e);
         }
     }
