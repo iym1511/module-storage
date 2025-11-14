@@ -1,7 +1,5 @@
 import ky from "ky";
 import {getCookie} from "cookies-next";
-import {refreshAccessToken} from "@/fetchData/token";
-import {isValidToken} from "@/util/getCookieValue";
 
 export const createKy = () => {
 
