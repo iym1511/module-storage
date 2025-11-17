@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": "my-app",
   "buildCommand": "npm run build",
   "installCommand": "npm ci",
   "outputDirectory": ".next",
