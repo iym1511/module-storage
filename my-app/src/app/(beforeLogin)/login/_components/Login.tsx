@@ -60,7 +60,7 @@ function Login() {
 
     const handleSignIn = async () => {
         try {
-            const res = await fetch('/ptc/login', {
+            const res = await fetch(`/${process.env.NEXT_PUBLIC_API_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
