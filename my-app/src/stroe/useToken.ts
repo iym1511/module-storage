@@ -8,7 +8,7 @@ interface SetStateType {
     setAccessToken: (token: string) => void;
 }
 
-// ✅ 두 타입 합치기
+// ✅ 두 타입 합치기ㅇ
 type TokenStore = StateType & SetStateType;
 
 export const useToken = create<TokenStore>((set, get) => ({
