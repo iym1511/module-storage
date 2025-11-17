@@ -104,7 +104,7 @@ function Login() {
 
     return (
         <div>
-            <h1>로그인 화면 입니다.</h1>
+            <h1>로그인 화면 입니다.ㅋㅋㅋㅋ</h1>
             <form
                 onSubmit={(e) => e.preventDefault()}
                 className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md"
