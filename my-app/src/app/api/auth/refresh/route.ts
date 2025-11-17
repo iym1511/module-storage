@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     const redirectUrl = request.nextUrl.searchParams.get("redirect") || "/home";
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
-
+    console.log("여기~")
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set("access_token", access_token, {
         httpOnly: false,

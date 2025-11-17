@@ -41,9 +41,27 @@ function Login() {
 
 
     /* 회원가입 함수 */
+    // const handleSignUp = async () => {
+    //     try {
+    //         const res = await fetch(`/ptc/signup`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json'
+    //             },
+    //             body: JSON.stringify(signUpInfo)
+    //         });
+    //
+    //         const data = await res.json();
+    //         console.log('회원가입 성공:', data)
+    //     }catch(e: unknown) {
+    //         console.error('회원가입 실패:', e);
+    //     }
+    // }
     const handleSignUp = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/signup`, {
+            console.log('📤 보내는 데이터:', signUpInfo); // ← 이거 확인!
+
+            const res = await fetch(`/ptc/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -51,16 +69,24 @@ function Login() {
                 body: JSON.stringify(signUpInfo)
             });
 
+            console.log('📥 Status:', res.status);
             const data = await res.json();
-            console.log('회원가입 성공:', data)
-        }catch(e: unknown) {
+            console.log('📥 응답:', data);
+
+            if (res.ok) {
+                alert('회원가입 성공!');
+            } else {
+                alert(`회원가입 실패: ${data.message}`);
+            }
+        } catch(e: unknown) {
             console.error('회원가입 실패:', e);
         }
     }
 
+
     const handleSignIn = async () => {
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
+            const res = await fetch('/ptc/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
