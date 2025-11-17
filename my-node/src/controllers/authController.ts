@@ -178,11 +178,11 @@ export const login = async (req: Request, res: Response) => {
 
         const { data, error } = await supabase.rpc("get_user_by_email", { p_email: email });
         const user = data?.[0];
-
+        console.log("user 함 보자 ", user);
         if (error || !user) {
             return res.status(401).json({
                 error: "INVALID_CREDENTIALS",
-                message: "이메일 또는 비밀번호가 올바르지 않습니다.",
+                message: "이메일 또는 비밀번호가 올바르지 않습니다zzz.",
             });
         }
 
