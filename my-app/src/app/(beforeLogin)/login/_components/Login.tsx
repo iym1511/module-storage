@@ -43,7 +43,7 @@ function Login() {
     /* 회원가입 함수 */
     const handleSignUp = async () => {
         try {
-            const res = await fetch('/ptc/signup', {
+            const res = await fetch(`/${process.env.NEXT_PUBLIC_API_URL}/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
