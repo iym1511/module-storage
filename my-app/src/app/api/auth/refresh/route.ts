@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 🔥 백엔드에 refresh 요청
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/refresh`, {
+    const backendResponse = await fetch(`${process.env.BACKEND_URL}/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),

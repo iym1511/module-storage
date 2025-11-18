@@ -4,7 +4,7 @@ import {getCookie} from "cookies-next";
 export const createKy = () => {
 
     return ky.create({
-        prefixUrl: process.env.NEXT_PUBLIC_API_URL,
+        prefixUrl: "ptc/",
         credentials: "include", // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
         hooks: {
             beforeRequest: [
