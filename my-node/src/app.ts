@@ -11,6 +11,7 @@ app.use(cors({
     origin: [
         "http://localhost:3000",              // 로컬 개발
         "https://module-storage-original.vercel.app",  // Vercel 프로덕션
+        "https://module-storage-original-dkjk7lebb-iym1511s-projects.vercel.app",
         // Vercel 모든 배포 URL 허용하려면:
         /^https:\/\/.*\.vercel\.app$/,
     ],
