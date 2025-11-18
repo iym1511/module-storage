@@ -218,17 +218,19 @@ export const login = async (req: Request, res: Response) => {
         console.log("node_env : ", process.env.NODE_ENV);
         // 쿠키 세팅
         res.cookie("access_token", accessToken, {
-            httpOnly: false, // ✅ 자바스크립트에서 접근 불가 (XSS 차단) 배포 후 true 변경
-            secure: process.env.NODE_ENV === "production", // ✅ HTTPS에서만 전송 (HTTP에서는 차단됨)
-            sameSite: "none", // ✅ cross-site 허용
+            httpOnly: false,  // ← false로! (middleware가 읽어야 함)
+            secure: false,    // ← false로! (HTTP 백엔드니까)
+            sameSite: "lax",  // ← lax로!
             maxAge: 60 * 1000, // 5초
+            path: "/",
         });
 
         res.cookie("refresh_token", refreshToken, {
-            httpOnly: false, // 배포 후 true 변경
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            httpOnly: false,
+            secure: false,
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+            path: "/",
         });
 
         return res.status(200).json({
