@@ -30,9 +30,9 @@ export async function GET(request: NextRequest) {
     console.log("여기~")
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set("access_token", access_token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        httpOnly: false,  // ← false로! (middleware가 읽어야 함)
+        secure: false,    // ← false로! (HTTP 백엔드니까)
+        sameSite: "lax",  // ← lax로!
         maxAge: 5, // 15분
         path: "/",
     });
@@ -40,10 +40,10 @@ export async function GET(request: NextRequest) {
     // 🔥 refreshToken 쿠키 재설정 (여기 추가)
     if (refresh_token) {
         response.cookies.set("refresh_token", refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60, // 7일
+            httpOnly: false,
+            secure: false,
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60,
             path: "/",
         });
     }
