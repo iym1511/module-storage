@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
             path: "/",
         });
     }
+    /*
+   *조건	이유
+   refresh_token sameSite가 lax여도	Next.js API Route 호출은 same-site 요청
+   secure:false인데도 읽히는 이유	Next.js API Route는 서버라 secure 필요 없음
+   httpOnly:true여도 읽히는 이유	서버 코드라서 httpOnly 쿠키 읽기 가능
+   왜 쿠키 전달이 문제 없었냐	프론트→Next API Route는 same-site라 lax에서 허용
+   * */
 
     return response;
 }
