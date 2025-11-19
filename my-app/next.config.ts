@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
                 // destination: "https://asre.cheilelec.com/api/:path*", // API 서버 URL
                 // destination: "http://localhost:8000/:path*",
                 // destination: "http://3.25.237.8:8000/:path*",
-                destination: "http://52.62.87.2:8000/:path*",
+                destination: "http://13.54.93.233:8000/:path*",
             },
         ];
     },
