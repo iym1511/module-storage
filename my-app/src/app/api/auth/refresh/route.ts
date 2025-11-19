@@ -15,12 +15,12 @@ export async function GET(request: NextRequest) {
     });
 
     // 🔥 실패 시 로그인
-    if (!backendResponse.ok) {
-        const res = NextResponse.redirect(new URL("/login", request.url));
-        res.cookies.delete("access_token");
-        res.cookies.delete("refresh_token");
-        return res;
-    }
+    // if (!backendResponse.ok) {
+    //     const res = NextResponse.redirect(new URL("/login", request.url));
+    //     res.cookies.delete("access_token");
+    //     res.cookies.delete("refresh_token");
+    //     return res;
+    // }
 
     // 🔥 백엔드에서 access, refresh 둘 다 받기
     const { access_token, refresh_token } = await backendResponse.json();
