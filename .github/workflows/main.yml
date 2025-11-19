@@ -60,62 +60,62 @@ jobs:
         run: echo "✅ Frontend build completed successfully!"
 
   # 3단계: 백엔드 배포 (my-node 변경시만 실행)
-deploy-backend:
-  needs: detect-changes
-  if: needs.detect-changes.outputs.backend == 'true'
-  runs-on: ubuntu-latest
+  # 3단계: 백엔드 배포 (my-node 변경시만 실행)
+  deploy-backend:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup SSH
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-    # 1️⃣ 백엔드 코드를 EC2로 복사 (my-node 전체)
-    - name: Copy backend files to EC2
-      uses: appleboy/scp-action@v0.1.4
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        source: "my-node/*"
-        target: "~/apps/my-node/"
+      # 💛 백엔드 코드를 EC2로 직접 복사 (SCP)
+      - name: Copy backend files to EC2
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "my-node/*"
+          target: "~/apps/my-node/"
 
-    # 2️⃣ 서버에서 빌드 및 PM2 재시작
-    - name: Execute deploy commands on EC2
-      uses: appleboy/ssh-action@v0.1.8
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }}
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          cd ~/apps/my-node
+      # 💛 EC2에서 설치 + 빌드 + PM2 재시작
+      - name: Execute backend deploy on EC2
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/apps/my-node
 
-          # 환경변수 파일 유지
-          if [ -f ~/apps/my-node/.env ]; then
-            cp ~/apps/my-node/.env .env
-          fi
+            # .env 유지
+            if [ -f ~/apps/my-node/.env ]; then
+              cp ~/apps/my-node/.env .env
+            fi
 
-          # 패키지 설치
-          npm ci
+            # 패키지 설치
+            npm ci
 
-          # 빌드
-          npm run build
+            # 빌드
+            npm run build
 
-          # PM2 재시작
-          pm2 restart my-node || pm2 start npm --name "my-node" -- start
+            # PM2 실행/재실행
+            pm2 restart my-node || pm2 start npm --name "my-node" -- start
+            pm2 save
 
-          pm2 save
+      - name: Verify deployment
+        run: |
+          sleep 5
+          curl -f http://${{ secrets.EC2_HOST }}:8000/health || echo "⚠️ Health check failed"
 
-    - name: Verify deployment
-      run: |
-        sleep 5
-        curl -f http://${{ secrets.EC2_HOST }}:8000/health || echo "⚠️ Health check failed"
-
-    - name: Success notification
-      run: echo "✅ Backend deployed successfully to EC2!"
+      - name: Success notification
+        run: echo "✅ Backend deployed successfully to EC2!"
