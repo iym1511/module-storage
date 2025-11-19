@@ -60,76 +60,62 @@ jobs:
         run: echo "✅ Frontend build completed successfully!"
 
   # 3단계: 백엔드 배포 (my-node 변경시만 실행)
-  deploy-backend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
-    runs-on: ubuntu-latest
+deploy-backend:
+  needs: detect-changes
+  if: needs.detect-changes.outputs.backend == 'true'
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
-        run: |
-          ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # 배포 디렉토리로 이동 (없으면 생성)
-            mkdir -p ~/apps/my-node
-            cd ~/apps/my-node
+    # 1️⃣ 백엔드 코드를 EC2로 복사 (my-node 전체)
+    - name: Copy backend files to EC2
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "my-node/*"
+        target: "~/apps/my-node/"
 
-            # 기존 코드 백업
-            if [ -d "my-node" ]; then
-              rm -rf my-node.backup
-              mv my-node my-node.backup
-            fi
+    # 2️⃣ 서버에서 빌드 및 PM2 재시작
+    - name: Execute deploy commands on EC2
+      uses: appleboy/ssh-action@v0.1.8
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          cd ~/apps/my-node
 
-            # 새 코드 클론
-            git clone https://github.com/${{ github.repository }}.git temp-repo
-            mv temp-repo/my-node ./my-node
-            rm -rf temp-repo
+          # 환경변수 파일 유지
+          if [ -f ~/apps/my-node/.env ]; then
+            cp ~/apps/my-node/.env .env
+          fi
 
-            # my-node 디렉토리로 이동
-            cd my-node
+          # 패키지 설치
+          npm ci
 
-            # 환경 변수 파일 복사 (이미 서버에 있는 .env 사용)
-            if [ -f ~/apps/my-node/.env ]; then
-              cp ~/apps/my-node/.env .env
-            fi
+          # 빌드
+          npm run build
 
-            # 의존성 설치 (devDependencies 포함 - TypeScript 빌드에 필요)
-            npm ci
+          # PM2 재시작
+          pm2 restart my-node || pm2 start npm --name "my-node" -- start
 
-            # TypeScript 빌드
-            npm run build
+          pm2 save
 
-            # dist 폴더 확인
-            if [ ! -d "dist" ]; then
-              echo "❌ Build failed: dist folder not found"
-              exit 1
-            fi
+    - name: Verify deployment
+      run: |
+        sleep 5
+        curl -f http://${{ secrets.EC2_HOST }}:8000/health || echo "⚠️ Health check failed"
 
-            # PM2로 재시작
-            pm2 describe my-node > /dev/null 2>&1
-            if [ $? -eq 0 ]; then
-              pm2 restart my-node
-            else
-              pm2 start npm --name "my-node" -- start
-            fi
-
-            pm2 save
-            echo "✅ Backend deployment completed!"
-          EOF
-
-      - name: Verify deployment
-        run: |
-          sleep 5
-          curl -f http://${{ secrets.EC2_HOST }}:8000/health || echo "⚠️ Health check failed"
-
-      - name: Success notification
-        run: echo "✅ Backend deployed successfully to EC2!"
+    - name: Success notification
+      run: echo "✅ Backend deployed successfully to EC2!"
