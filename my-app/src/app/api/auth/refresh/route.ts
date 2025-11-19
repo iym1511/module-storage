@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     console.log("여기~")
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set("access_token", access_token, {
-        httpOnly: true,      // 🔥 절대 프론트 접근 불가 (보안 핵심)
+        httpOnly: false,      // 🔥 절대 프론트 접근 불가 (보안 핵심)
         secure: true,        // 🔥 HTTPS 필수
         sameSite: "none",    // 🔥 cross-site 요청시 쿠키 전달 허용
         maxAge: 15, // 15분
