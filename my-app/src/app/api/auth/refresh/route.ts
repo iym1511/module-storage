@@ -40,9 +40,9 @@ export async function GET(request: NextRequest) {
     // 🔥 refreshToken 쿠키 재설정 (여기 추가)
     if (refresh_token) {
         response.cookies.set("refresh_token", refresh_token, {
-            httpOnly: true,      // 🔥 절대 프론트 접근 불가 (보안 핵심)
-            secure: false,        // 🔥 HTTPS 필수
-            sameSite: "none",    // 🔥 cross-site 요청시 쿠키 전달 허용
+            httpOnly: true,
+            secure: false,
+            sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60,
             path: "/",
         });
