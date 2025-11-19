@@ -13,7 +13,7 @@ app.use(cors({
         "https://module-storage-original.vercel.app",  // Vercel 프로덕션
         "https://module-storage-original-dkjk7lebb-iym1511s-projects.vercel.app",
         "http://13.54.93.233:8000",
-        // Vercel 모든 배포 URL 허용하려면:
+        // Vercel 모든 배포 URL 허용
         /^https:\/\/.*\.vercel\.app$/,
     ],
     credentials: true,
