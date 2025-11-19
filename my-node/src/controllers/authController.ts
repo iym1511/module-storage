@@ -219,7 +219,7 @@ export const login = async (req: Request, res: Response) => {
         // 쿠키 세팅
         res.cookie("access_token", accessToken, {
             httpOnly: false,      // 🔥 절대 프론트 접근 불가 (보안 핵심)
-            secure: true,        // 🔥 HTTPS 필수
+            secure: true,        // 🔥 HTTPS 필수 (로컬에선 false)
             sameSite: "none",    // 🔥 cross-site 요청시 쿠키 전달 허용
             maxAge: 60 * 1000, // 5초
             path: "/",
