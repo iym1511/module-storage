@@ -21,7 +21,7 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
-    // accessToken이 있으면 검증
+    // accessToken이 있으면 검증.
     if (accessToken) {
         try {
             await jwtVerify(accessToken, secret);
