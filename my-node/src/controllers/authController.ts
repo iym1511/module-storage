@@ -201,7 +201,7 @@ export const login = async (req: Request, res: Response) => {
         const accessToken = jwt.sign(
             { email: user.v_email, name: user.v_name },
             process.env.JWT_SECRET!,
-            { expiresIn: "5s" }
+            { expiresIn: "15s" }
         );
 
         // Refresh Token 생성 (tokenId 포함)
@@ -301,7 +301,7 @@ export const refreshToken = async (req: Request, res: Response) => {
         const accessToken = jwt.sign(
             { email: user.email, name: user.name },
             process.env.JWT_SECRET!,
-            { expiresIn: "5s" }
+            { expiresIn: "15s" }
         );
 
         // Refresh Token 생성 (tokenId 포함)

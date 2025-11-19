@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         httpOnly: false,  // ← false로! (middleware가 읽어야 함)
         secure: false,    // ← false로! (HTTP 백엔드니까)
         sameSite: "lax",  // ← lax로!
-        maxAge: 5, // 15분
+        maxAge: 15, // 15분
         path: "/",
     });
 
