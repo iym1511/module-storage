@@ -227,7 +227,7 @@ export const login = async (req: Request, res: Response) => {
 
         res.cookie("refresh_token", refreshToken, {
             httpOnly: true,
-            secure: false,
+             secure: false,
             sameSite: "lax",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
             path: "/",
@@ -270,7 +270,7 @@ export const refreshToken = async (req: Request, res: Response) => {
         // 토큰 ID 생성 (고유 식별자)
         const tokenId = uuidv4();
         const refreshToken = req.body.refreshToken; // 파라미터로 쿠키 가져오기
-        console.log("백 리프래시토큰 : ",refreshToken)
+
         if (!refreshToken) {
             return res.status(401).json({
                 error: "NO_REFRESH_TOKEN",
@@ -282,8 +282,6 @@ export const refreshToken = async (req: Request, res: Response) => {
         const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as DecodedToken;
         const redisKey = `refresh_token:${decoded.email}`;
         const storedTokenId = await redis.get(redisKey);
-        console.log("⚙️decoded : ", decoded.tokenId);
-        console.log("⚙️storedTokenId : ", storedTokenId)
 
         if (!storedTokenId || storedTokenId !== decoded.tokenId) {
             return res.status(401).json({

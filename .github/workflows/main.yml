@@ -1,40 +1,45 @@
 name: Full Stack CI/CD
+
 on:
   push:
-    branches: [main, dev]
+    branches: [main]               # main 브랜치로 push될 때 실행
   pull_request:
-    branches: [main]
+    branches: [main]               # main 브랜치 PR에도 실행
 
 jobs:
-  # 1단계: 변경 사항 감지
+  # ────────────────────────────────────────────────────────
+  # 1) 변경된 디렉토리 감지 (my-app / my-node)
+  # ────────────────────────────────────────────────────────
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      frontend: ${{ steps.filter.outputs.frontend }}
-      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}   # 프론트 변경 여부
+      backend: ${{ steps.filter.outputs.backend }}     # 백엔드 변경 여부
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4                       # 리포지토리 가져오기
 
       - name: Check for changes
-        uses: dorny/paths-filter@v3
+        uses: dorny/paths-filter@v3                     # 특정 폴더 변경 체크
         id: filter
         with:
           filters: |
             frontend:
-              - 'my-app/**'
+              - 'my-app/**'                             # 프론트 파일 변경 감지
             backend:
-              - 'my-node/**'
+              - 'my-node/**'                            # 백엔드 파일 변경 감지
 
-  # 2단계: 프론트엔드 빌드 (my-app 변경시만 실행)
+  # ────────────────────────────────────────────────────────
+  # 2) 프론트엔드 빌드 (my-app 변경 시에만 실행)
+  # ────────────────────────────────────────────────────────
   build-frontend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    if: needs.detect-changes.outputs.frontend == 'true' # 프론트 변경 없으면 건너뜀
     runs-on: ubuntu-latest
 
     defaults:
       run:
-        working-directory: ./my-app
+        working-directory: ./my-app                     # 모든 명령은 my-app 내부에서 실행
 
     steps:
       - name: Checkout code
@@ -43,78 +48,83 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.19.2'
-          cache: 'npm'
+          node-version: '20.19.2'                       # Node 버전 고정
+          cache: 'npm'                                  # node_modules 캐싱
           cache-dependency-path: './my-app/package-lock.json'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci                                     # 패키지 설치 (ci는 재현성 높음)
 
       - name: Run lint
-        run: npm run lint
+        run: npm run lint                               # 코드 린트 검사
 
       - name: Build
-        run: npm run build
+        run: npm run build                              # Next.js 빌드
 
       - name: Success notification
         run: echo "✅ Frontend build completed successfully!"
 
-  # 3단계: 백엔드 배포 (my-node 변경시만 실행)
+  # ────────────────────────────────────────────────────────
+  # 3) 백엔드 서버 EC2 배포 (my-node 변경 시에만 실행)
+  # ────────────────────────────────────────────────────────
   deploy-backend:
     needs: detect-changes
-    if: needs.detect-changes.outputs.backend == 'true'
+    if: needs.detect-changes.outputs.backend == 'true'  # 백엔드 변경 없으면 스킵
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4                       # 리포 체크 아웃
 
+      # SSH 연결 준비
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa     # 프라이빗 키 저장
+          chmod 600 ~/.ssh/id_rsa                                # 권한 설정
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts  # 호스트 키 등록
 
+      # SSH 내부에서 EC2에 배포 스크립트 실행
       - name: Deploy to EC2
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
-            # 배포 디렉토리로 이동 (없으면 생성)
+
+#            배포 디렉토리 (없으면 생성)
             mkdir -p ~/apps/my-node
             cd ~/apps/my-node
 
             # 기존 코드 백업
             if [ -d "my-node" ]; then
               rm -rf my-node.backup
-              mv my-node my-node.backup
+              mv my-node my-node.backup                 # 이전 코드를 backup 폴더로 이동
             fi
 
-            # 새 코드 클론
+            # 깃허브에서 새 코드 클론
             git clone https://github.com/${{ github.repository }}.git temp-repo
-            mv temp-repo/my-node ./my-node
+            mv temp-repo/my-node ./my-node              # 백엔드 부분만 이동
             rm -rf temp-repo
 
-            # my-node 디렉토리로 이동
+            # 백엔드 디렉토리로 이동
             cd my-node
 
-            # 환경 변수 파일 복사 (이미 서버에 있는 .env 사용)
+            # 서버에 미리 저장해둔 .env 복사
             if [ -f ~/apps/my-node/.env ]; then
               cp ~/apps/my-node/.env .env
             fi
 
-            # 의존성 설치 (devDependencies 포함 - TypeScript 빌드에 필요)
+            # 필요한 패키지 설치
             npm ci
 
             # TypeScript 빌드
             npm run build
 
-            # dist 폴더 확인
+            # 빌드 결과(dist)가 있는지 확인
             if [ ! -d "dist" ]; then
               echo "❌ Build failed: dist folder not found"
               exit 1
             fi
 
-            # PM2로 재시작
+            # PM2로 서버 재시작 혹은 새로 실행
             pm2 describe my-node > /dev/null 2>&1
             if [ $? -eq 0 ]; then
               pm2 restart my-node
@@ -122,10 +132,13 @@ jobs:
               pm2 start npm --name "my-node" -- start
             fi
 
+            # PM2 상태 저장 (재부팅 후 자동 실행)
             pm2 save
+
             echo "✅ Backend deployment completed!"
           EOF
 
+      # 배포 확인 (헬스체크)
       - name: Verify deployment
         run: |
           sleep 5

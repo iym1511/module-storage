@@ -2,7 +2,9 @@
 import React, {useEffect, useState} from 'react';
 
 import {apiTest, UserType} from "../../../../fetchData/fetch-get";
-
+import {ThemeToggle} from "@/components/theme-toggle";
+import * as s from '@/lib/simple-styles';
+import {Button, Card, Input} from "@/components/ui/Button";
 
 function MainContents() {
 
@@ -33,6 +35,77 @@ function MainContents() {
                     <p>{item.name}</p>
                 </div>
             ))}
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+
+                {/* 헤더 */}
+                <header className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                    <div className={`${s.container} ${s.between} py-4`}>
+                        <h1 className={s.title}>내 사이트</h1>
+                        <ThemeToggle />
+                    </div>
+                </header>
+
+                {/* 메인 */}
+                <main className={s.section}>
+                    <div className={s.container}>
+
+                        {/* 제목 */}
+                        <div className={`${s.center} ${s.stack} mb-12`}>
+                            <h2 className={s.title}>방안 2: 컴포넌트 버전</h2>
+                            <p className={s.body}>Button, Input, Card 컴포넌트 기반!</p>
+                        </div>
+
+                        {/* 카드 그리드 */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <Card hover>
+                                <h3 className={s.subtitle}>카드 1</h3>
+                                <p className={s.body}>간단한 카드 컴포넌트</p>
+                            </Card>
+
+                            <Card hover>
+                                <h3 className={s.subtitle}>카드 2</h3>
+                                <p className={s.body}>다크모드 자동 지원</p>
+                            </Card>
+
+                            <Card hover>
+                                <h3 className={s.subtitle}>카드 3</h3>
+                                <p className={s.body}>props만 던지면 끝</p>
+                            </Card>
+                        </div>
+
+                        {/* 버튼 */}
+                        <Card className="mb-6">
+                            <h3 className={`${s.subtitle} mb-4`}>버튼 예시</h3>
+                            <div className="flex gap-4">
+                                <Button variant="primary">Primary</Button>
+                                <Button variant="secondary">Secondary</Button>
+                                <Button variant="outline">Outline</Button>
+                            </div>
+                        </Card>
+
+                        {/* 입력 */}
+                        <Card>
+                            <h3 className={`${s.subtitle} mb-4`}>로그인 폼</h3>
+                            <div className={s.stack}>
+                                <Input label="이메일" placeholder="email@example.com" />
+                                <Input label="비밀번호" type="password" placeholder="••••••••" />
+                                <Button variant="primary" className="w-full">
+                                    로그인
+                                </Button>
+                            </div>
+                        </Card>
+
+                        {/* 커스텀 스타일 */}
+                        <div className="mt-6 p-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center">
+                            <h2 className="text-3xl font-bold mb-2">
+                                일회성 스타일은 여기서!
+                            </h2>
+                            <p>컴포넌트 + Tailwind 조합 모두 가능</p>
+                        </div>
+
+                    </div>
+                </main>
+            </div>
         </div>
     );
 }

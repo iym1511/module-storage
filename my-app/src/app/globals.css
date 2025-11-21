@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* 다크모드 수동 전환 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+
 /* 커스텀 스타일 */
 @layer base {
   body {

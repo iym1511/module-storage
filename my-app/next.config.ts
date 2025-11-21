@@ -6,9 +6,9 @@ const nextConfig: NextConfig = {
             {
                 source: "/ptc/:path*", // 프록시 경로
                 // destination: "https://asre.cheilelec.com/api/:path*", // API 서버 URL
-                // destination: "http://localhost:8000/:path*",
+                destination: "http://localhost:8000/:path*",
                 // destination: "http://3.25.237.8:8000/:path*",
-                destination: "http://13.54.93.233:8000/:path*", // 새 인스턴스
+                // destination: "http://13.54.93.233:8000/:path*", // 새 인스턴스
             },
         ];
     },
