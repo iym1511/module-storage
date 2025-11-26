@@ -6,35 +6,72 @@
 
 /* 커스텀 스타일 */
 @layer base {
+
   body {
-    @apply text-black
+    @apply text-black;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
   }
+
   input, textarea, select {
     @apply text-black;
   }
+
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 전체 UI 배경 / 텍스트 */
+  --background: #ffffff;                /* white */
+  --foreground: #111827;                /* gray-900 */
+
+  /* 카드 */
+  --card-bg: #ffffff;       /* bg-white */
+  --card-border: #e5e7eb;   /* border-gray-200 */
+
+  /* 버튼 (Primary: blue 계열) */
+  --color-btn-primary: #2563eb;         /* blue-600 */
+  --color-btn-primary-hover: #1d4ed8;   /* blue-700 */
+
+  /* Secondary 버튼 */
+  --color-btn-secondary: #4b5563;       /* gray-600 */
+  --color-btn-secondary-hover: #374151; /* gray-700 */
+
+  /* 텍스트 */
+  --text-title: #111827;                /* gray-900 */
+  --text-subtitle: #1f2937;             /* gray-800 */
+  --text-body: #374151;                 /* gray-700 */
+  --text-small: #6b7280;                /* gray-500 */
+
+  /* section spacing */
+  --section-padding-y: 4rem;
+  --section-padding-x: 1rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark mode */
+.dark {
+  --background: #111827;                /* gray-900 */
+  --foreground: #f9fafb;                /* gray-50 */
+
+  --card-bg: #1f2937;       /* bg-gray-800 */
+  --card-border: #374151;   /* border-gray-700 */
+
+  --color-btn-primary: #3b82f6;         /* blue-500 */
+  --color-btn-primary-hover: #2563eb;   /* blue-600 */
+
+  --color-btn-secondary: #6b7280;       /* gray-500 */
+  --color-btn-secondary-hover: #4b5563; /* gray-600 */
+
+  --text-title: #f3f4f6;                /* gray-100 */
+  --text-subtitle: #e5e7eb;             /* gray-200 */
+  --text-body: #d1d5db;                 /* gray-300 */
+  --text-small: #9ca3af;                /* gray-400 */
 }
+
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

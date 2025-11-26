@@ -5,6 +5,7 @@ import {apiTest, UserType} from "../../../../fetchData/fetch-get";
 import {ThemeToggle} from "@/components/theme-toggle";
 import * as s from '@/lib/simple-styles';
 import {Button, Card, Input} from "@/components/ui/Button";
+import DrawerSlide from "@/app/(afterLogin)/home/_components/DrawerSlide";
 
 function MainContents() {
 
@@ -106,6 +107,11 @@ function MainContents() {
                     </div>
                 </main>
             </div>
+        {/*<Contents/>*/}
+            <br />
+            <br />
+            <br />
+            <DrawerSlide/>
         </div>
     );
 }
