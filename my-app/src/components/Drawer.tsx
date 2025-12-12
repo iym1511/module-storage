@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+'use client'
+import React, {useEffect, useState} from "react";
 
 interface DrawerProps {
     isExpanded: boolean;

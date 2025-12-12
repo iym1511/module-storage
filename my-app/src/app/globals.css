@@ -1,77 +1,155 @@
 @import "tailwindcss";
+/* 버튼 css  */
+@import "../styles/buttons.css";
 
-/* 다크모드 수동 전환 */
+/* ========================================
+   다크모드 설정
+   ======================================== */
 @custom-variant dark (&:where(.dark, .dark *));
 
-
-/* 커스텀 스타일 */
+/* ========================================
+   CSS 변수 정의
+   ======================================== */
 @layer base {
 
+  /* 기본 모드 */
+  :root {
+    /* 배경 & 텍스트 */
+    --background: 255 255 255;          /* white */
+    --foreground: 17 24 39;             /* gray-900 */
+
+    /* 카드 */
+    --card-bg: 255 255 255;             /* white */
+    --card-border: 229 231 235;         /* gray-200 */
+
+    /* 버튼 */
+    --btn-primary: 37 99 235;           /* blue-600 */
+    --btn-primary-hover: 29 78 216;     /* blue-700 */
+    --btn-secondary: 75 85 99;          /* gray-600 */
+    --btn-secondary-hover: 55 65 81;    /* gray-700 */
+
+    /* 텍스트 */
+    --text-title: 17 24 39;             /* gray-900 */
+    --text-subtitle: 31 41 55;          /* gray-800 */
+    --text-body: 55 65 81;              /* gray-700 */
+    --text-small: 107 114 128;          /* gray-500 */
+  }
+
+  /* 다크모드 */
+  .dark {
+    --background: 17 24 39;             /* gray-900 */
+    --foreground: 249 250 251;          /* gray-50 */
+
+    --card-bg: 31 41 55;                /* gray-800 */
+    --card-border: 55 65 81;            /* gray-700 */
+
+    --btn-primary: 59 130 246;          /* blue-500 */
+    --btn-primary-hover: 37 99 235;     /* blue-600 */
+    --btn-secondary: 107 114 128;       /* gray-500 */
+    --btn-secondary-hover: 75 85 99;    /* gray-600 */
+
+    --text-title: 243 244 246;          /* gray-100 */
+    --text-subtitle: 229 231 235;       /* gray-200 */
+    --text-body: 209 213 219;           /* gray-300 */
+    --text-small: 156 163 175;          /* gray-400 */
+  }
+
+  /* 기본 스타일 */
   body {
-    @apply text-black;
-    background: var(--background);
-    color: var(--foreground);
+    background: rgb(var(--background));
+    color: rgb(var(--foreground));
     font-family: Arial, Helvetica, sans-serif;
   }
 
   input, textarea, select {
-    @apply text-black;
+    color: rgb(var(--foreground));
   }
-
 }
 
-:root {
-  /* 전체 UI 배경 / 텍스트 */
-  --background: #ffffff;                /* white */
-  --foreground: #111827;                /* gray-900 */
+/* ========================================
+   @theme으로 Tailwind 클래스 등록
+   ======================================== */
+@theme {
+  /* 배경 & 텍스트 */
+  --color-bg: rgb(var(--background));
+  --color-fg: rgb(var(--foreground));
 
   /* 카드 */
-  --card-bg: #ffffff;       /* bg-white */
-  --card-border: #e5e7eb;   /* border-gray-200 */
+  --color-card-bg: rgb(var(--card-bg));
+  --color-card-border: rgb(var(--card-border));
 
-  /* 버튼 (Primary: blue 계열) */
-  --color-btn-primary: #2563eb;         /* blue-600 */
-  --color-btn-primary-hover: #1d4ed8;   /* blue-700 */
-
-  /* Secondary 버튼 */
-  --color-btn-secondary: #4b5563;       /* gray-600 */
-  --color-btn-secondary-hover: #374151; /* gray-700 */
+  /* 버튼 */
+  --color-btn-primary: rgb(var(--btn-primary));
+  --color-btn-primary-hover: rgb(var(--btn-primary-hover));
+  --color-btn-secondary: rgb(var(--btn-secondary));
+  --color-btn-secondary-hover: rgb(var(--btn-secondary-hover));
 
   /* 텍스트 */
-  --text-title: #111827;                /* gray-900 */
-  --text-subtitle: #1f2937;             /* gray-800 */
-  --text-body: #374151;                 /* gray-700 */
-  --text-small: #6b7280;                /* gray-500 */
-
-  /* section spacing */
-  --section-padding-y: 4rem;
-  --section-padding-x: 1rem;
+  --color-text-title: rgb(var(--text-title));
+  --color-text-subtitle: rgb(var(--text-subtitle));
+  --color-text-body: rgb(var(--text-body));
+  --color-text-small: rgb(var(--text-small));
 }
 
-/* Dark mode */
-.dark {
-  --background: #111827;                /* gray-900 */
-  --foreground: #f9fafb;                /* gray-50 */
+/* ========================================
+   재사용 컴포넌트 클래스
+   ======================================== */
+@layer components {
+  /* 카드 */
+  .card {
+    @apply rounded-lg border border-card-border bg-card-bg p-6 shadow-sm;
+  }
 
-  --card-bg: #1f2937;       /* bg-gray-800 */
-  --card-border: #374151;   /* border-gray-700 */
+  .card-hover {
+    @apply rounded-lg border border-card-border bg-card-bg p-6 shadow-sm
+    hover:shadow-md transition-shadow;
+  }
 
-  --color-btn-primary: #3b82f6;         /* blue-500 */
-  --color-btn-primary-hover: #2563eb;   /* blue-600 */
+  /* 버튼 */
 
-  --color-btn-secondary: #6b7280;       /* gray-500 */
-  --color-btn-secondary-hover: #4b5563; /* gray-600 */
+  /* 입력 */
+  .input-base {
+    @apply w-full px-4 py-2 rounded-lg transition
+    bg-card-bg border border-card-border text-fg
+    focus:outline-none focus:ring-2 focus:ring-btn-primary;
+  }
 
-  --text-title: #f3f4f6;                /* gray-100 */
-  --text-subtitle: #e5e7eb;             /* gray-200 */
-  --text-body: #d1d5db;                 /* gray-300 */
-  --text-small: #9ca3af;                /* gray-400 */
-}
+  .input-label {
+    @apply block text-sm font-medium text-text-body mb-1;
+  }
 
+  /* 레이아웃 */
+  .center {
+    @apply flex items-center justify-center;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  .between {
+    @apply flex items-center justify-between;
+  }
+
+  .stack {
+    @apply flex flex-col gap-4;
+  }
+
+  /* 텍스트 */
+  .text-title {
+    @apply text-3xl font-bold text-text-title;
+  }
+
+  .text-subtitle {
+    @apply text-xl font-semibold text-text-subtitle;
+  }
+
+  .text-body {
+    @apply text-base text-text-body;
+  }
+
+  .text-small {
+    @apply text-sm text-text-small;
+  }
+
+  /* 컨테이너 */
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 py-10;
   }
 }

@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type {NextConfig} from "next";
 
 const nextConfig: NextConfig = {
     async rewrites() {
@@ -20,25 +20,27 @@ const nextConfig: NextConfig = {
             },
         ],
     },
-    webpack: (config) => {
-        // SVG 파일 처리
-        config.module.rules.push({
-            test: /\.svg$/i,
-            issuer: /\.[jt]sx?$/,
-            use: ["@svgr/webpack"],
-        });
 
-        // 폰트 파일 처리
-        config.module.rules.push({
-            test: /\.(woff|woff2|eot|ttf|otf)$/i, // 폰트 파일 확장자
-            type: "asset/resource", // 파일을 로드하는 방법
-            generator: {
-                filename: "fonts/[name][hash][ext][query]", // 폰트 파일 경로 설정
-            },
-        });
+    // webpack: (config) => {
+    //     // SVG 파일 처리
+    //     config.module.rules.push({
+    //         test: /\.svg$/i,
+    //         issuer: /\.[jt]sx?$/,
+    //         use: ["@svgr/webpack"],
+    //     });
+    //
+    //     // 폰트 파일 처리
+    //     config.module.rules.push({
+    //         test: /\.(woff|woff2|eot|ttf|otf)$/i, // 폰트 파일 확장자
+    //         type: "asset/resource", // 파일을 로드하는 방법
+    //         generator: {
+    //             filename: "fonts/[name][hash][ext][query]", // 폰트 파일 경로 설정
+    //         },
+    //     });
+    //
+    //     return config;
+    // },
 
-        return config;
-    },
     async redirects() {
         return [
             {

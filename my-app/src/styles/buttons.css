@@ -1,0 +1,19 @@
+@layer components {
+
+    /* 버튼 */
+    .btn-primary {
+        @apply px-4 py-2 rounded-lg font-medium transition-colors
+        bg-btn-primary hover:bg-btn-primary-hover text-white;
+    }
+
+    .btn-secondary {
+        @apply px-4 py-2 rounded-lg font-medium transition-colors
+        bg-btn-secondary hover:bg-btn-secondary-hover text-white;
+    }
+
+    .btn-outline {
+        @apply px-4 py-2 rounded-lg font-medium transition-colors
+        border border-btn-primary text-btn-primary
+        hover:bg-btn-primary hover:text-white;
+    }
+}

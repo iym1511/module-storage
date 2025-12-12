@@ -1,11 +1,6 @@
 'use client';
 
-import { ButtonHTMLAttributes, ReactNode } from 'react';
-import {
-    btnOutline,
-    btnPrimary,
-    btnSecondary,
-} from '@/lib/simple-styles';
+import {ButtonHTMLAttributes, ReactNode} from 'react';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'secondary' | 'outline';
@@ -19,9 +14,9 @@ export function Button({
                            ...props
                        }: ButtonProps) {
     const variants = {
-        primary: btnPrimary,
-        secondary: btnSecondary,
-        outline: btnOutline,
+        primary: 'btn-primary',
+        secondary: 'btn-secondary',
+        outline: 'btn-outline',
     };
 
     return (

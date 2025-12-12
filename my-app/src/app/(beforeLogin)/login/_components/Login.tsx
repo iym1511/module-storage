@@ -1,7 +1,6 @@
 'use client';
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, useState} from 'react';
 import {useRouter} from "next/navigation";
-
 
 
 function Login() {
@@ -110,10 +109,11 @@ function Login() {
                 className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md"
             >
                 <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <label htmlFor="login-email" className="block text-gray-700 text-sm font-bold mb-2">
                         Email
                     </label>
                     <input
+                        id="login-email"
                         type="text"
                         name="email"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -123,10 +123,11 @@ function Login() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <label htmlFor="login-password" className="block text-gray-700 text-sm font-bold mb-2">
                         PASSWORD
                     </label>
                     <input
+                        id="login-password"
                         type="password"
                         name="password"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -150,10 +151,11 @@ function Login() {
                 className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md"
             >
                 <div className="mb-6">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <label htmlFor="signup-email" className="block text-gray-700 text-sm font-bold mb-2">
                         E-MAIL
                     </label>
                     <input
+                        id="signup-email"
                         type="text"
                         name="email"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -162,10 +164,11 @@ function Login() {
                     />
                 </div>
                 <div className="mb-6">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <label htmlFor="signup-name" className="block text-gray-700 text-sm font-bold mb-2">
                         NAME
                     </label>
                     <input
+                        id="signup-name"
                         type="text"
                         name="name"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -175,10 +178,11 @@ function Login() {
                 </div>
 
                 <div className="mb-6">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">
+                    <label htmlFor="signup-password" className="block text-gray-700 text-sm font-bold mb-2">
                         PASSWORD
                     </label>
                     <input
+                        id="signup-password"
                         type="password"
                         name="password"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"

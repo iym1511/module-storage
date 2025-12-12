@@ -1,9 +1,8 @@
 'use client';
 
-import { useTheme } from 'next-themes';
-import { useEffect, useState } from 'react';
+import {useTheme} from 'next-themes';
+import {useEffect, useState} from 'react';
 import * as s from '@/lib/simple-styles';
-import {small} from "@/lib/simple-styles";
 
 export function ThemeToggle() {
     const [mounted, setMounted] = useState<boolean>(false);

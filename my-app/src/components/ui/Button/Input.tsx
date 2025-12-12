@@ -1,8 +1,6 @@
 'use client';
 
-import { InputHTMLAttributes } from 'react';
-import {input, inputLabel} from "@/lib/simple-styles";
-
+import {InputHTMLAttributes} from 'react';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -12,13 +10,13 @@ export function Input({ label, className = '', ...props }: InputProps) {
     return (
         <div className="w-full">
             {label && (
-                <label className={`${inputLabel}`}>
+                <label className="input-label">
                     {label}
                 </label>
             )}
 
             <input
-                className={`${input} ${className}`}
+                className={`input-base ${className}`}
                 {...props}
             />
         </div>
