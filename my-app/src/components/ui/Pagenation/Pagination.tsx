@@ -8,11 +8,11 @@ interface PaginationProps {
 }
 
 export default function Pagination({
-                                       currentPage = 1,
-                                       totalPages = 20,
-                                       onPageChange,
-                                       maxVisible = 5,
-                                   }: PaginationProps) {
+    currentPage = 1,
+    totalPages = 20,
+    onPageChange,
+    maxVisible = 5,
+}: PaginationProps) {
     // 페이지 번호 배열 생성
     const getPageNumbers = () => {
         const pages: (number | string)[] = [];
@@ -73,11 +73,10 @@ export default function Pagination({
                 if (page === '...') {
                     return (
                         <span key={`ellipsis-${index}`} className="px-3 py-2">
-              ...
-            </span>
+                            ...
+                        </span>
                     );
                 }
-
                 const pageNum = page as number;
                 const isActive = pageNum === currentPage;
 
