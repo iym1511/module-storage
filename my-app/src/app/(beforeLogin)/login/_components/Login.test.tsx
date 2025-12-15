@@ -119,7 +119,7 @@ describe('Login 컴포넌트 테스트', () => {
         const passwordInputs = screen.getAllByLabelText(/password/i);
 
         await userEvent.type(emailInputs[0], 'test@example.com');
-        await userEvent.type(passwordInputs[0], 'password123');
+        await userEvent.type(passwordInputs[0], 'password123'); 
 
         // 로그인 버튼 클릭
         const loginButton = screen.getByRole('button', { name: /로그인/i });
@@ -170,6 +170,7 @@ describe('Login 컴포넌트 테스트', () => {
 // 🔍 디버깅: fetch가 호출되었는지 확인
         console.log('fetch 호출 횟수:', (global.fetch as any).mock.calls.length);
         console.log('fetch 호출 내역:', (global.fetch as any).mock.calls);
+
         // fetch가 올바른 URL과 데이터로 호출되었는지 확인
         await waitFor(() => {
             expect(global.fetch).toHaveBeenCalledWith('/ptc/signup', {

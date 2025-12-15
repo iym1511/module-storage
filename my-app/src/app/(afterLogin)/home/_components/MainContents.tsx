@@ -5,9 +5,11 @@ import {apiTest, UserType} from "../../../../fetchData/fetch-get";
 import {ThemeToggle} from "@/components/theme-toggle";
 import {Button, Card, Input} from "@/components/ui/Button";
 import DrawerSlide from "@/app/(afterLogin)/home/_components/DrawerSlide";
+import Pagination from "@/components/ui/Pagenation/Pagination";
 
 function MainContents() {
 
+    const [currentPage, setCurrentPage] = useState(1);
     const [ary, setAry] = useState<UserType[] | null>();
 
 
@@ -94,6 +96,14 @@ function MainContents() {
                                 </Button>
                             </div>
                         </Card>
+
+                        {/* 페이지네이션 */}
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={20}
+                            onPageChange={setCurrentPage}
+                            maxVisible={5}
+                        />
 
                         {/* 커스텀 스타일 */}
                         <div className="mt-6 p-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center">
