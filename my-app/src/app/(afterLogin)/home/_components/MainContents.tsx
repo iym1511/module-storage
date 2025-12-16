@@ -1,17 +1,19 @@
 'use client';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {apiTest, UserType} from "../../../../fetchData/fetch-get";
-import {ThemeToggle} from "@/components/theme-toggle";
-import {Button, Card, Input} from "@/components/ui/Button";
-import DrawerSlide from "@/app/(afterLogin)/home/_components/DrawerSlide";
-import Pagination from "@/components/ui/Pagenation/Pagination";
+import { apiTest, UserType } from '../../../../fetchData/fetch-get';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Button, Card, Input } from '@/components/ui/Button';
+import DrawerSlide from '@/app/(afterLogin)/home/_components/DrawerSlide';
+import Pagination from '@/components/ui/Pagenation/Pagination';
+import { Search } from 'lucide-react';
+import Modal from '@/components/ui/Modal/Modal';
 
 function MainContents() {
-
-    const [currentPage, setCurrentPage] = useState(1);
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    const [size, setSize] = useState('xl');
+    const [currentPage, setCurrentPage] = useState<number>(1);
     const [ary, setAry] = useState<UserType[] | null>();
-
 
     const fetchData = async () => {
         const result = await apiTest();
@@ -20,11 +22,11 @@ function MainContents() {
 
     const 리프래시토큰재발급 = async () => {
         // await refreshAccessToken();
-    }
+    };
 
     useEffect(() => {
         fetchData();
-    },[]);
+    }, []);
 
     return (
         <div>
@@ -38,7 +40,6 @@ function MainContents() {
                 </div>
             ))}
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-
                 {/* 헤더 */}
                 <header className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                     <div className="container-custom between py-4">
@@ -46,11 +47,10 @@ function MainContents() {
                         <ThemeToggle />
                     </div>
                 </header>
-
+                <Search className="w-5 h-5" />
                 {/* 메인 */}
                 <main className="section">
                     <div className="container-custom">
-
                         {/* 제목 */}
                         <div className="center stack mb-12">
                             <h2 className="text-title">방안 2: 컴포넌트 버전</h2>
@@ -85,6 +85,67 @@ function MainContents() {
                             </div>
                         </Card>
 
+                        {/* 모달 */}
+                        <div className="border border-card-border bg-card-bg rounded-lg shadow p-6 mb-6">
+                            <h2 className="text-fg text-xl font-semibold mb-4">크기 선택</h2>
+                            <div className="flex gap-3 mb-6">
+                                {['sm', 'md', 'lg', 'xl'].map((s) => (
+                                    <button
+                                        key={s}
+                                        onClick={() => setSize(s)}
+                                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                            size === s
+                                                ? 'bg-blue-600 text-white'
+                                                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                        }`}
+                                    >
+                                        {s.toUpperCase()}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setIsOpen(true)}
+                                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                            >
+                                Modal 열기
+                            </button>
+                        </div>
+                        <Modal
+                            isOpen={isOpen}
+                            onClose={() => setIsOpen(false)}
+                            title="모달 제목"
+                            size={size}
+                            closeOnOverlay={true}
+                        >
+                            <div className="space-y-4">
+                                <p className="text-fg">
+                                    이것은 재사용 가능한 Modal 컴포넌트입니다. 다양한 크기와 옵션을
+                                    제공합니다.
+                                </p>
+                                <p className="text-fg">
+                                    오버레이를 클릭하거나 ESC 키를 눌러서 닫을 수 있습니다.
+                                </p>
+                                <div className="flex gap-3 pt-4">
+                                    <button
+                                        onClick={() => setIsOpen(false)}
+                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                    >
+                                        취소
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            alert('확인 버튼이 클릭되었습니다!');
+                                            setIsOpen(false);
+                                        }}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        확인
+                                    </button>
+                                </div>
+                            </div>
+                        </Modal>
+
                         {/* 입력 */}
                         <Card>
                             <h3 className="text-subtitle mb-4">로그인 폼</h3>
@@ -107,20 +168,17 @@ function MainContents() {
 
                         {/* 커스텀 스타일 */}
                         <div className="mt-6 p-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white text-center">
-                            <h2 className="text-3xl font-bold mb-2">
-                                일회성 스타일은 여기서!
-                            </h2>
+                            <h2 className="text-3xl font-bold mb-2">일회성 스타일은 여기서!</h2>
                             <p>컴포넌트 + Tailwind 조합 모두 가능</p>
                         </div>
-
                     </div>
                 </main>
             </div>
-        {/*<Contents/>*/}
+            {/*<Contents/>*/}
             <br />
             <br />
             <br />
-            <DrawerSlide/>
+            <DrawerSlide />
         </div>
     );
 }
