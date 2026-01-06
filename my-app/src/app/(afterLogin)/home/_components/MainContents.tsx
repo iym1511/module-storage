@@ -3,13 +3,18 @@ import React, { useEffect, useState } from 'react';
 
 import { apiTest, UserType } from '../../../../fetchData/fetch-get';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { Button, Card, Input } from '@/components/ui/Button';
+
+import { Button as ShButton } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import DrawerSlide from '@/app/(afterLogin)/home/_components/DrawerSlide';
 import Pagination from '@/components/ui/Pagenation/Pagination';
 import { Search } from 'lucide-react';
 import Modal from '@/components/ui/Modal/Modal';
+import { Button, Card, Input } from '@/components/ui/ui-Button';
 
 function MainContents() {
+    const [price, setPrice] = useState<[number, number]>([10000, 50000]);
+
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [size, setSize] = useState('xl');
     const [currentPage, setCurrentPage] = useState<number>(1);
@@ -39,6 +44,21 @@ function MainContents() {
                     <p>{item.name}</p>
                 </div>
             ))}
+            <ShButton>버튼~~</ShButton>
+            <div className="w-full max-w-sm space-y-4">
+                <div className="flex justify-between text-sm">
+                    <span>{price[0].toLocaleString()}원</span>
+                    <span>{price[1].toLocaleString()}원</span>
+                </div>
+
+                <Slider
+                    value={price}
+                    onValueChange={(value) => setPrice(value as [number, number])}
+                    min={0}
+                    max={100000}
+                    step={1000}
+                />
+            </div>
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
                 {/* 헤더 */}
                 <header className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">

@@ -46,7 +46,7 @@ function Modal({ isOpen, onClose, title, children, size = 'md', closeOnOverlay =
             <div
                 ref={modalRef}
                 tabIndex={-1} // 코드로만 focus
-                className={`bg-card-bg rounded-lg shadow-xl w-full ${sizeClasses[size]} animate-slide-up`}
+                className={`bg-card-bg rounded-lg shadow-xl w-full ${sizeClasses[size]} animate-slide-up bg-background`}
             >
                 {/* 헤더 */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200">

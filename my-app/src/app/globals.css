@@ -3,120 +3,162 @@
 @import "../styles/buttons.css";
 @import "../styles/modal-animation.css";
 
-/* ========================================
-   다크모드 설정
-   ======================================== */
+/* 다크모드 설정 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* 라이트 모드 색상 정의 */
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.129 0.042 264.695);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.129 0.042 264.695);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.129 0.042 264.695);
+  --primary: oklch(0.208 0.042 265.755);
+  --primary-foreground: oklch(0.984 0.003 247.858);
+  --secondary: oklch(0.968 0.007 247.896);
+  --secondary-foreground: oklch(0.208 0.042 265.755);
+  --muted: oklch(0.968 0.007 247.896);
+  --muted-foreground: oklch(0.554 0.046 257.417);
+  --accent: oklch(0.968 0.007 247.896);
+  --accent-foreground: oklch(0.208 0.042 265.755);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.929 0.013 255.508);
+  --input: oklch(0.929 0.013 255.508);
+  --ring: oklch(0.704 0.04 256.788);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.984 0.003 247.858);
+  --sidebar-foreground: oklch(0.129 0.042 264.695);
+  --sidebar-primary: oklch(0.208 0.042 265.755);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.968 0.007 247.896);
+  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
+  --sidebar-border: oklch(0.929 0.013 255.508);
+  --sidebar-ring: oklch(0.704 0.04 256.788);
+}
+
 /* ========================================
-   CSS 변수 정의
+   다크 모드 색상 정의
    ======================================== */
+.dark {
+  --background: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.984 0.003 247.858);
+  --card: oklch(0.208 0.042 265.755);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(0.208 0.042 265.755);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: oklch(0.929 0.013 255.508);
+  --primary-foreground: oklch(0.208 0.042 265.755);
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-accent: oklch(0.279 0.041 260.031);
+  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+/* shadcn/ui 기본 변수 (Tailwind v4 호환) */
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);  /* foreground : 텍스트 색상*/
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* 기본 스타일 (shadcn/ui 호환) */
 @layer base {
-
-  /* 기본 모드 */
-  :root {
-    /* 배경 & 텍스트 */
-    --background: 255 255 255;          /* white */
-    --foreground: 17 24 39;             /* gray-900 */
-
-    /* 카드 */
-    --card-bg: 255 255 255;             /* white */
-    --card-border: 229 231 235;         /* gray-200 */
-
-    /* 버튼 */
-    --btn-primary: 37 99 235;           /* blue-600 */
-    --btn-primary-hover: 29 78 216;     /* blue-700 */
-    --btn-secondary: 75 85 99;          /* gray-600 */
-    --btn-secondary-hover: 55 65 81;    /* gray-700 */
-
-    /* 텍스트 */
-    --text-title: 17 24 39;             /* gray-900 */
-    --text-subtitle: 31 41 55;          /* gray-800 */
-    --text-body: 55 65 81;              /* gray-700 */
-    --text-small: 107 114 128;          /* gray-500 */
+  * {
+    @apply border-border outline-ring/50;
   }
 
-  /* 다크모드 */
-  .dark {
-    --background: 17 24 39;             /* gray-900 */
-    --foreground: 249 250 251;          /* gray-50 */
-
-    --card-bg: 31 41 55;                /* gray-800 */
-    --card-border: 55 65 81;            /* gray-700 */
-
-    --btn-primary: 59 130 246;          /* blue-500 */
-    --btn-primary-hover: 37 99 235;     /* blue-600 */
-    --btn-secondary: 107 114 128;       /* gray-500 */
-    --btn-secondary-hover: 75 85 99;    /* gray-600 */
-
-    --text-title: 243 244 246;          /* gray-100 */
-    --text-subtitle: 229 231 235;       /* gray-200 */
-    --text-body: 209 213 219;           /* gray-300 */
-    --text-small: 156 163 175;          /* gray-400 */
-  }
-
-  /* 기본 스타일 */
   body {
-    background: rgb(var(--background)); /* 기본 배경색 변경 */
-    color: rgb(var(--foreground)); /* 기본 폰트색 변경 */
+    @apply bg-background text-foreground;
     font-family: Arial, Helvetica, sans-serif;
   }
 
   input, textarea, select {
-    color: rgb(var(--foreground));
+    @apply text-foreground;
   }
 }
 
-/* ========================================
-   @theme으로 Tailwind 클래스 등록
-   ======================================== */
-@theme {
-  /* 배경 & 텍스트 */
-  --color-bg: rgb(var(--background));
-  --color-fg: rgb(var(--foreground));
-
-  /* 카드 */
-  --color-card-bg: rgb(var(--card-bg));
-  --color-card-border: rgb(var(--card-border));
-
-  /* 버튼 */
-  --color-btn-primary: rgb(var(--btn-primary));
-  --color-btn-primary-hover: rgb(var(--btn-primary-hover));
-  --color-btn-secondary: rgb(var(--btn-secondary));
-  --color-btn-secondary-hover: rgb(var(--btn-secondary-hover));
-
-  /* 텍스트 */
-  --color-text-title: rgb(var(--text-title));
-  --color-text-subtitle: rgb(var(--text-subtitle));
-  --color-text-body: rgb(var(--text-body));
-  --color-text-small: rgb(var(--text-small));
-}
-
-/* ========================================
-   재사용 컴포넌트 클래스
-   ======================================== */
+/* 재사용 컴포넌트 클래스 (shadcn/ui 변수 사용) */
 @layer components {
   /* 카드 */
   .card {
-    @apply rounded-lg border border-card-border bg-card-bg p-6 shadow-sm;
+    @apply rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm;
   }
 
   .card-hover {
-    @apply rounded-lg border border-card-border bg-card-bg p-6 shadow-sm
+    @apply rounded-lg border border-border bg-card text-card-foreground p-6 shadow-sm
     hover:shadow-md transition-shadow;
   }
-
-  /* 버튼 */
 
   /* 입력 */
   .input-base {
     @apply w-full px-4 py-2 rounded-lg transition
-    bg-card-bg border border-card-border text-fg
-    focus:outline-none focus:ring-2 focus:ring-btn-primary;
+    bg-background border border-input text-foreground
+    focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
+    placeholder:text-muted-foreground;
   }
 
   .input-label {
-    @apply block text-sm font-medium text-text-body mb-1;
+    @apply block text-sm font-medium text-foreground mb-1;
   }
 
   /* 레이아웃 */
@@ -134,23 +176,39 @@
 
   /* 텍스트 */
   .text-title {
-    @apply text-3xl font-bold text-text-title;
+    @apply text-3xl font-bold text-foreground;
   }
 
   .text-subtitle {
-    @apply text-xl font-semibold text-text-subtitle;
+    @apply text-xl font-semibold text-foreground;
   }
 
   .text-body {
-    @apply text-base text-text-body;
+    @apply text-base text-foreground;
   }
 
   .text-small {
-    @apply text-sm text-text-small;
+    @apply text-sm text-muted-foreground;
   }
 
   /* 컨테이너 */
   .container-custom {
     @apply max-w-7xl mx-auto px-4 py-10;
+  }
+
+  /* 배지 */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold
+    bg-primary text-primary-foreground;
+  }
+
+  .badge-secondary {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold
+    bg-secondary text-secondary-foreground;
+  }
+
+  /* 구분선 */
+  .divider {
+    @apply border-t border-border;
   }
 }
