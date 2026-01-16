@@ -13,7 +13,7 @@ export const card = `
   rounded-lg
   border border-[var(--card-border)]
   bg-[var(--card-bg)]
-  p-6 shadow-sm
+  p-6 shadow-smㄴ
 `;
 
 export const cardHover = `
