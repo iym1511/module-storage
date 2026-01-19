@@ -1,4 +1,5 @@
 import React, {ReactNode} from 'react';
+import RQProvider from '@/components/RQProvider';
 
 interface Props {
     children: ReactNode;
@@ -11,7 +12,7 @@ function Layout({ children}: Props) {
     return (
         <div>
             <div>
-                {children}
+                <RQProvider>{children}</RQProvider>
             </div>
         </div>
     );

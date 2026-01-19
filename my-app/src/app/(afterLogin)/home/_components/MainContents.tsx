@@ -1,9 +1,10 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
-import { apiTest, UserType } from '../../../../fetchData/fetch-get';
+import { Skeleton } from '@/components/ui/skeleton';
+import { delayedApiTest, UserType } from '../../../../fetchData/fetch-get';
 import { ThemeToggle } from '@/components/theme-toggle';
-
 import { Button as ShButton } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import DrawerSlide from '@/app/(afterLogin)/home/_components/DrawerSlide';
@@ -12,38 +13,50 @@ import { Search } from 'lucide-react';
 import Modal from '@/components/ui/Modal/Modal';
 import { Button, Card, Input } from '@/components/ui/ui-Button';
 
-function MainContents() {
+function MainContents({ placeholderAry }: { placeholderAry: UserType[] }) {
     const [price, setPrice] = useState<[number, number]>([10000, 50000]);
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [size, setSize] = useState('xl');
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [ary, setAry] = useState<UserType[] | null>();
 
-    const fetchData = async () => {
-        const result = await apiTest();
-        setAry(result); // ✅ 결과를 state에 반영
-    };
+    const { data: ary, isLoading } = useQuery({
+        queryKey: ['users'],
+        queryFn: delayedApiTest,
+        // 결과물은을 가공해서 변경
+        select: (data) =>
+            data.map((user) => ({
+                ...user,
+                name: `${user.name} (가공됨)`,
+            })),
+    });
 
     const 리프래시토큰재발급 = async () => {
         // await refreshAccessToken();
     };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     return (
         <div>
             3시30분 제일전기
             <h1>홈 페이지입니다~</h1>
             <button onClick={리프래시토큰재발급}>리프래시 토큰 발급</button>
-            {ary?.map((item, index) => (
-                <div key={index}>
-                    <h3>{item.id}</h3>
-                    <p>{item.name}</p>
-                </div>
-            ))}
+            <div className="space-y-4">
+                {isLoading
+                    ? // 스켈레톤 UI 영역
+                      Array.from({ length: 5 }).map((_, index) => (
+                          <div key={index} className="space-y-2">
+                              <Skeleton className="h-6 w-[150px]" />
+                              <Skeleton className="h-4 w-[250px]" />
+                          </div>
+                      ))
+                    : // 실제 데이터 영역
+                      ary?.map((item, index) => (
+                          <div key={index}>
+                              <h3>{item.id}</h3>
+                              <p>{item.name}</p>
+                          </div>
+                      ))}
+            </div>
             <ShButton>버튼~~</ShButton>
             <div className="w-full max-w-sm space-y-4">
                 <div className="flex justify-between text-sm">
