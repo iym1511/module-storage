@@ -8,7 +8,7 @@ import { cookies } from 'next/headers';
 async function Page() {
     const queryClient = new QueryClient();
 
-    // 이렇게 하면 서버에서 미리 데이터를 가져다줘서 로딩안뜨고
+    // 이렇게 프리패칭 하면 서버에서 미리 데이터를 가져다줘서 로딩안뜨고
     // 바로 데이터가 나와서 개빠르다.
 
     // ✅ Next 서버가 실행될때 브라우저에서 쿠키값을 전송해줘서 사용가능
