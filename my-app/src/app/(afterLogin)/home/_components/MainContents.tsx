@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { Skeleton } from '@/components/ui/skeleton';
-import { delayedApiTest, UserType } from '../../../../fetchData/fetch-get';
+import { apiTest, UserType } from '../../../../fetchData/fetch-get';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button as ShButton } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -12,6 +12,8 @@ import Pagination from '@/components/ui/Pagenation/Pagination';
 import { Search } from 'lucide-react';
 import Modal from '@/components/ui/Modal/Modal';
 import { Button, Card, Input } from '@/components/ui/ui-Button';
+import Contents from '@/app/(afterLogin)/home/_components/Contents';
+import InfiniteScrollExample from '@/app/(afterLogin)/home/_components/InfiniteScrollExample';
 
 function MainContents({ placeholderAry }: { placeholderAry: UserType[] }) {
     const [price, setPrice] = useState<[number, number]>([10000, 50000]);
@@ -22,7 +24,7 @@ function MainContents({ placeholderAry }: { placeholderAry: UserType[] }) {
 
     const { data: ary, isLoading } = useQuery({
         queryKey: ['users'],
-        queryFn: delayedApiTest,
+        queryFn: apiTest,
         // 결과물은을 가공해서 변경
         select: (data) =>
             data.map((user) => ({
@@ -207,7 +209,8 @@ function MainContents({ placeholderAry }: { placeholderAry: UserType[] }) {
                     </div>
                 </main>
             </div>
-            {/*<Contents/>*/}
+            <Contents />
+            <InfiniteScrollExample />
             <br />
             <br />
             <br />

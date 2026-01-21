@@ -1,14 +1,14 @@
 'use client';
-import React, {ChangeEvent, useState} from 'react';
-import {useRouter} from "next/navigation";
-
+import React, { ChangeEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 function Login() {
-
     const router = useRouter();
 
-
-    const [userInfo, setUserInfo] = useState<{email: string; password: string}>({email: '', password: ''});
+    const [userInfo, setUserInfo] = useState<{ email: string; password: string }>({
+        email: '',
+        password: '',
+    });
     const [signUpInfo, setSignUpInfo] = useState<{
         email: string;
         password: string;
@@ -16,28 +16,24 @@ function Login() {
     }>({
         email: '',
         password: '',
-        name: ''
+        name: '',
     });
 
     const handleSignUpChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSignUpInfo((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
-    }
+    };
 
     const handleSignInChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setUserInfo((prev) => ({
             ...prev,
-            [name]: value
+            [name]: value,
         }));
-    }
-
-
-
-
+    };
 
     /* 회원가입 함수 */
     // const handleSignUp = async () => {
@@ -63,9 +59,9 @@ function Login() {
             const res = await fetch(`/ptc/signup`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(signUpInfo)
+                body: JSON.stringify(signUpInfo),
             });
 
             console.log('📥 Status:', res.status);
@@ -77,29 +73,33 @@ function Login() {
             } else {
                 alert(`회원가입 실패: ${data.message}`);
             }
-        } catch(e: unknown) {
+        } catch (e: unknown) {
             console.error('회원가입 실패:', e);
         }
-    }
-
+    };
 
     const handleSignIn = async () => {
         try {
-            const res = await fetch('/ptc/login', {
+            const res = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(userInfo)
+                body: JSON.stringify(userInfo),
             });
-            console.log(res);
             router.push('/home');
-        }catch (e: unknown) {
-            console.error('로그인 실패:', e);
+
+            if (res.ok) {
+                console.log('로그인 성공', res);
+            } else {
+                const data = await res.json();
+                alert(data.message || '로그인에 실패했습니다.');
+            }
+        } catch (e: unknown) {
+            console.error('로그인 요청 중 에러:', e);
+            alert('로그인 중 오류가 발생했습니다.');
         }
-    }
-
-
+    };
 
     return (
         <div>
@@ -109,7 +109,10 @@ function Login() {
                 className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md"
             >
                 <div className="mb-4">
-                    <label htmlFor="login-email" className="block text-gray-700 text-sm font-bold mb-2">
+                    <label
+                        htmlFor="login-email"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                    >
                         Email
                     </label>
                     <input
@@ -123,7 +126,10 @@ function Login() {
                 </div>
 
                 <div className="mb-6">
-                    <label htmlFor="login-password" className="block text-gray-700 text-sm font-bold mb-2">
+                    <label
+                        htmlFor="login-password"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                    >
                         PASSWORD
                     </label>
                     <input
@@ -151,7 +157,10 @@ function Login() {
                 className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow-md"
             >
                 <div className="mb-6">
-                    <label htmlFor="signup-email" className="block text-gray-700 text-sm font-bold mb-2">
+                    <label
+                        htmlFor="signup-email"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                    >
                         E-MAIL
                     </label>
                     <input
@@ -164,7 +173,10 @@ function Login() {
                     />
                 </div>
                 <div className="mb-6">
-                    <label htmlFor="signup-name" className="block text-gray-700 text-sm font-bold mb-2">
+                    <label
+                        htmlFor="signup-name"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                    >
                         NAME
                     </label>
                     <input
@@ -178,7 +190,10 @@ function Login() {
                 </div>
 
                 <div className="mb-6">
-                    <label htmlFor="signup-password" className="block text-gray-700 text-sm font-bold mb-2">
+                    <label
+                        htmlFor="signup-password"
+                        className="block text-gray-700 text-sm font-bold mb-2"
+                    >
                         PASSWORD
                     </label>
                     <input
