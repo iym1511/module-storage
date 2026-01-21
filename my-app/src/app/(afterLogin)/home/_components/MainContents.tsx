@@ -210,6 +210,7 @@ function MainContents({ placeholderAry }: { placeholderAry: UserType[] }) {
                 </main>
             </div>
             <Contents />
+            {/* 무한 스크롤 */}
             <InfiniteScrollExample />
             <br />
             <br />
