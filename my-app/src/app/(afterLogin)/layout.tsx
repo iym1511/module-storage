@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react';
+import React, { ReactNode } from 'react';
 import RQProvider from '@/components/RQProvider';
 
 interface Props {
@@ -8,12 +8,10 @@ interface Props {
     // modal: ReactNode;
 }
 
-function Layout({ children}: Props) {
+function Layout({ children }: Props) {
     return (
         <div>
-            <div>
-                <RQProvider>{children}</RQProvider>
-            </div>
+            <RQProvider>{children}</RQProvider>
         </div>
     );
 }

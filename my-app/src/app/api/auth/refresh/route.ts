@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         // 'none' = 모든 외부 사이트 요청에 쿠키 포함
         // CORS API 호출, iframe 등에서 필요할 때 사용
         // ⚠️ 'none' 사용 시 반드시 secure: true 필요
-        sameSite: 'lax', // 🔥 cross-site 요청시 쿠키 전달 허용
+        sameSite: 'strict', // 🔥 cross-site 요청시 쿠키 전달 허용
         maxAge: 15, // 15분
         path: '/',
     });
@@ -89,7 +89,9 @@ export async function POST(request: NextRequest) {
 
     // 🔥 실패 시 401 반환
     if (!backendResponse.ok) {
-        const res = NextResponse.json({ message: 'Refresh failed' }, { status: 401 });
+        const errorData = await backendResponse.json();
+        const res = NextResponse.json(errorData, { status: backendResponse.status });
+        console.log('출력!', res);
         res.cookies.delete('access_token');
         res.cookies.delete('refresh_token');
         return res;

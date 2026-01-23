@@ -55,9 +55,7 @@ async function Page() {
 
     return (
         <HydrationBoundary state={dehydratedState}>
-            <div>
-                <MainContents placeholderAry={placeholderAry} />
-            </div>
+            <MainContents placeholderAry={placeholderAry} />
         </HydrationBoundary>
     );
 }

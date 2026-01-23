@@ -17,11 +17,8 @@ export async function POST(request: NextRequest) {
             }),
         });
         if (!backendResponse.ok) {
-            const errorData = await backendResponse.json().catch(() => ({}));
-            return NextResponse.json(
-                { message: errorData.message || '로그인 실패' },
-                { status: backendResponse.status },
-            );
+            const errorData = await backendResponse.json();
+            return NextResponse.json(errorData, { status: backendResponse.status });
         }
 
         const data = await backendResponse.json();
