@@ -16,7 +16,11 @@ export default function InfiniteScrollExample() {
         queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi({ pageParam: pageParam as number }),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
-            console.log('lastPage 데이터 확인:', lastPage);
+            // nextCursor가 없으면 즉시 undefined 반환 (추가 로직 실행 안 함)
+            if (!lastPage.nextCursor) {
+                return undefined;
+            }
+            // 알아서 배열의 마지막 index 반환'lastPage 데이터 확인:', lastPage);
             return lastPage.nextCursor;
         },
     });
@@ -26,7 +30,6 @@ export default function InfiniteScrollExample() {
             fetchNextPage();
         }
     }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
     return (
         <div className="p-4 border rounded-xl bg-white dark:bg-slate-900 shadow-lg max-w-md mx-auto mt-8">
             <h2 className="text-xl font-bold mb-4 px-2">내부 스크롤 무한 스크롤</h2>
@@ -61,8 +64,11 @@ export default function InfiniteScrollExample() {
                             </React.Fragment>
                         ))}
 
-                        {/* 👇 관찰 대상 (박스 내부 가장 하단에 위치) */}
-                        <div ref={ref} className="h-20 flex justify-center items-center">
+                        {/* 👇 관찰 대상 (박스 내부 가장 하단에 위치) + (리랜더링 방지) */}
+                        <div
+                            ref={hasNextPage ? ref : undefined}
+                            className="h-20 flex justify-center items-center"
+                        >
                             {isFetchingNextPage ? (
                                 <div className="flex flex-col items-center gap-2">
                                     <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>

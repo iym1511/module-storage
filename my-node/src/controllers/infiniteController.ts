@@ -36,3 +36,29 @@ export const getInfiniteData = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Server Error" });
   }
 };
+
+// 3. 페이지네이션 기반 컨트롤러 (Offset-based)
+export const getPaginatedData = async (req: Request, res: Response) => {
+  try {
+    // 쿼리 파라미터 받기 (기본값: page 1, limit 5)
+    const page = parseInt(req.query.page as string, 10) || 1;
+    const limit = parseInt(req.query.limit as string, 10) || 5;
+
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const data = ORIGINAL_DB.slice(startIndex, endIndex);
+    const totalCount = ORIGINAL_DB.length;
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return res.status(200).json({
+      data,
+      currentPage: page,
+      totalPages,
+      totalCount,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server Error" });
+  }
+};

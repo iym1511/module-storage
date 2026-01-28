@@ -1,4 +1,5 @@
 import { createKy } from '@/util/api';
+import { getCookie } from 'cookies-next';
 
 export interface UserType {
     created_at: string;

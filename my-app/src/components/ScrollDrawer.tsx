@@ -1,32 +1,36 @@
 'use client';
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
 interface ScrollableListProps {
     children: ReactNode;
     className?: string;
     style?: React.CSSProperties;
-    deps?: any[]; // 스크롤 재등록이 필요한 의존성
     emptyMessage?: string;
     emptyIcon?: string;
 }
 
-// type LocalItem = {
-//     idx: number | null;
-//     cityNm: string | null;
-//     localNm: string | null;
-// };
-//
-// type LocalState = {
-//     applied: LocalItem | null;
-//     temp: LocalItem | null;
-// };
+// 초기 드로어 높이 상수
+const INITIAL_DRAWER_HEIGHT = 160;
+const MID_DRAWER_HEIGHT = 420;
 
-// 드로어 높이 상수
-const DRAWER_HEIGHTS = {
-    initial: 160,
-    mid: 420,
-    expanded: typeof window !== 'undefined' ? window.innerHeight - 70 : 500, // 500은 ssr에서의 에러방지 기본값
+// 가장 가까운 스냅 포인트 찾기
+const getClosestSnapPoint = (
+    currentHeight: number,
+    expandedHeight: number,
+): { state: string; height: number } => {
+    const points = [
+        { state: 'initial', height: INITIAL_DRAWER_HEIGHT },
+        { state: 'mid', height: MID_DRAWER_HEIGHT },
+        { state: 'expanded', height: expandedHeight },
+    ];
+
+    return points.reduce((closest, point) => {
+        const distance = Math.abs(currentHeight - point.height);
+        const closestDistance = Math.abs(currentHeight - closest.height);
+        return distance < closestDistance ? point : closest;
+    });
 };
+
 export default function ScrollDrawer({
     children,
     className = '',
@@ -36,8 +40,11 @@ export default function ScrollDrawer({
 }: ScrollableListProps) {
     const [flagStatus, setFlagStatus] = useState<'all' | 'gold' | 'grey'>('all');
 
+    const [expandedHeight, setExpandedHeight] = useState(
+        typeof window !== 'undefined' ? window.innerHeight - 70 : 500,
+    );
     const [drawerState, setDrawerState] = useState('initial');
-    const [drawerHeight, setDrawerHeight] = useState(DRAWER_HEIGHTS.initial);
+    const [drawerHeight, setDrawerHeight] = useState(INITIAL_DRAWER_HEIGHT);
     const [isDragging, setIsDragging] = useState(false);
 
     const drawerRef = useRef<HTMLDivElement | null>(null);
@@ -45,9 +52,21 @@ export default function ScrollDrawer({
     const filterRef = useRef<HTMLDivElement | null>(null);
 
     const touchStart = useRef<number | null>(null);
-    const startHeight = useRef<number>(DRAWER_HEIGHTS.initial);
+    const startHeight = useRef<number>(INITIAL_DRAWER_HEIGHT);
     const listRef = useRef<HTMLDivElement | null>(null);
     const rafId = useRef<number | null>(null);
+
+    // [개선] 화면 크기 변경 시 최대 높이 동적 업데이트
+    useEffect(() => {
+        const handleResize = () => {
+            setExpandedHeight(window.innerHeight - 70);
+        };
+
+        window.addEventListener('resize', handleResize);
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []);
 
     // 스크롤 체이닝 방지 적용
     useEffect(() => {
@@ -100,50 +119,12 @@ export default function ScrollDrawer({
     const isEmpty = Array.isArray(children) && children.length === 0;
 
     // ---------------------------------------
-    // 가장 가까운 스냅 포인트 찾기
-    // ---------------------------------------
-    const getClosestSnapPoint = (currentHeight: number) => {
-        const distances = [
-            {
-                state: 'initial',
-                height: DRAWER_HEIGHTS.initial,
-                distance: Math.abs(currentHeight - DRAWER_HEIGHTS.initial),
-            },
-            {
-                state: 'mid',
-                height: DRAWER_HEIGHTS.mid,
-                distance: Math.abs(currentHeight - DRAWER_HEIGHTS.mid),
-            },
-            {
-                state: 'expanded',
-                height: DRAWER_HEIGHTS.expanded,
-                distance: Math.abs(currentHeight - DRAWER_HEIGHTS.expanded),
-            },
-        ];
-        distances.sort((a, b) => a.distance - b.distance);
-        return distances[0];
-    };
-
-    // ---------------------------------------
-    // 깃발 필터
-    // ---------------------------------------
-    // const handleStatusFilter = (status: any) => {
-    //     setFlagStatus(status);
-    //
-    //     if (status === "all") {
-    //         setMarketList(dummyMarketList);
-    //     } else {
-    //         setMarketList(dummyMarketList.filter((item) => item.flagType === status));
-    //     }
-    // };
-
-    // ---------------------------------------
     // Drawer 실시간 드래그
     // ---------------------------------------
     useEffect(() => {
-        const drawer: any = drawerRef.current;
-        const puller: any = pullerRef.current;
-        const filter: any = filterRef.current;
+        const drawer = drawerRef.current;
+        const puller = pullerRef.current;
+        const filter = filterRef.current;
 
         if (!drawer || !puller || !filter) return;
 
@@ -164,10 +145,7 @@ export default function ScrollDrawer({
             const newHeight = startHeight.current + diff;
 
             // 최소/최대 높이 제한
-            const clampedHeight = Math.max(
-                DRAWER_HEIGHTS.initial,
-                Math.min(DRAWER_HEIGHTS.expanded, newHeight),
-            );
+            const clampedHeight = Math.max(INITIAL_DRAWER_HEIGHT, Math.min(expandedHeight, newHeight));
 
             // requestAnimationFrame으로 부드러운 업데이트
             if (rafId.current) {
@@ -192,7 +170,7 @@ export default function ScrollDrawer({
             }
 
             // 가장 가까운 스냅 포인트로 이동
-            const snapPoint = getClosestSnapPoint(drawerHeight);
+            const snapPoint = getClosestSnapPoint(drawerHeight, expandedHeight);
             setDrawerHeight(snapPoint.height);
             setDrawerState(snapPoint.state);
 
@@ -212,24 +190,21 @@ export default function ScrollDrawer({
         }
 
         // mid/expanded: puller & filter 영역만 터치
-        puller.addEventListener('touchstart', handleStart, { passive: false });
-        puller.addEventListener('touchmove', handleMove, { passive: false });
-        puller.addEventListener('touchend', handleEnd, { passive: false });
-
-        filter.addEventListener('touchstart', handleStart, { passive: false });
-        filter.addEventListener('touchmove', handleMove, { passive: false });
-        filter.addEventListener('touchend', handleEnd, { passive: false });
+        const elements = [puller, filter];
+        elements.forEach((el) => {
+            el.addEventListener('touchstart', handleStart, { passive: false });
+            el.addEventListener('touchmove', handleMove, { passive: false });
+            el.addEventListener('touchend', handleEnd, { passive: false });
+        });
 
         return () => {
-            puller.removeEventListener('touchstart', handleStart);
-            puller.removeEventListener('touchmove', handleMove);
-            puller.removeEventListener('touchend', handleEnd);
-
-            filter.removeEventListener('touchstart', handleStart);
-            filter.removeEventListener('touchmove', handleMove);
-            filter.removeEventListener('touchend', handleEnd);
+            elements.forEach((el) => {
+                el.removeEventListener('touchstart', handleStart);
+                el.removeEventListener('touchmove', handleMove);
+                el.removeEventListener('touchend', handleEnd);
+            });
         };
-    }, [drawerState, drawerHeight]);
+    }, [drawerState, drawerHeight, expandedHeight]);
 
     // ---------------------------------------
     // cleanup: rafId 정리

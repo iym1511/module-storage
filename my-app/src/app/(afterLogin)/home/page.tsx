@@ -3,6 +3,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import MainContents from '@/app/(afterLogin)/home/_components/MainContents';
 import { apiTest, UserType } from '@/fetchData/fetch-get';
 import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite';
+import { fetchPaginatedItems } from '@/fetchData/fetch-pagination';
 import { cookies } from 'next/headers';
 
 async function Page() {
@@ -17,10 +18,12 @@ async function Page() {
 
     // 모든 Query를 병렬로 Prefetch
     await Promise.all([
+        // 유저 리스트 호출
         queryClient.prefetchQuery({
             queryKey: ['users'],
             queryFn: () => apiTest(cookieString),
         }),
+        // 인피니티 스크롤
         queryClient.prefetchInfiniteQuery({
             queryKey: ['infiniteItems'],
             queryFn: ({ pageParam }) =>
@@ -30,6 +33,15 @@ async function Page() {
                 }),
             initialPageParam: 0,
             getNextPageParam: (lastPage) => lastPage.nextCursor,
+        }),
+        // 페이지 네이션
+        queryClient.prefetchQuery({
+            queryKey: ['paginatedItems', 1],
+            queryFn: () =>
+                fetchPaginatedItems({
+                    page: 1,
+                    cookieString,
+                }),
         }),
     ]);
 

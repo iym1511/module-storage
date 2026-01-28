@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend Project (my-app)
 
-## Getting Started
+이 프로젝트는 **Next.js**를 기반으로 구축된 프론트엔드 애플리케이션입니다.
+최신 웹 기술 스택을 활용하여 성능과 사용자 경험을 최적화하였으며, **TypeScript**를 통해 안정적인 개발 환경을 제공합니다.
 
-First, run the development server:
+## 🛠️ 기술 스택 (Tech Stack)
+
+### Core
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Library**: [React 19](https://react.dev/)
+
+### Styling
+- **CSS Framework**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Utility**: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
+- **Animation**: `tailwindcss-animate`
+- **Icons**: `lucide-react`
+- **Theme**: `next-themes` (Dark/Light mode support)
+
+### State Management & Data Fetching
+- **Client State**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Server State**: [TanStack Query v5](https://tanstack.com/query/latest)
+- **HTTP Client**: [ky](https://github.com/sindresorhus/ky)
+
+### Authentication & Security
+- `jose`, `jwt-decode`
+- `cookies-next`
+
+### Testing
+- **Unit/Integration Test**: [Vitest](https://vitest.dev/)
+- **Testing Library**: `@testing-library/react`
+
+---
+
+## 🚀 시작하기 (Getting Started)
+
+### 사전 요구사항 (Prerequisites)
+- Node.js (LTS 버전 권장)
+- npm, yarn, pnpm, 또는 bun 패키지 매니저
+
+### 설치 (Installation)
+
+의존성 패키지를 설치합니다.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# npm
+npm install
+
+# pnpm
+pnpm install
+
+# yarn
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 실행 (Run)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+개발 서버를 실행합니다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# npm
+npm run dev
 
-## Learn More
+# pnpm
+pnpm dev
 
-To learn more about Next.js, take a look at the following resources:
+# yarn
+yarn dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인하세요.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📜 스크립트 (Scripts)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`package.json`에 정의된 주요 스크립트입니다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `dev`: 개발 모드로 서버 실행 (Hot Reloading 지원)
+- `build`: 프로덕션 배포를 위한 애플리케이션 빌드
+- `start`: 빌드된 애플리케이션을 프로덕션 모드로 실행
+- `lint`: ESLint를 통한 코드 스타일 검사
+- `test`: Vitest를 이용한 테스트 실행
+
+## 📂 프로젝트 구조 (Project Structure)
+
+```
+my-app/
+├── src/
+│   ├── app/           # Next.js App Router 페이지 및 레이아웃
+│   ├── components/    # 재사용 가능한 UI 컴포넌트 (ui, layout 등)
+│   ├── fetchData/     # 데이터 페칭 로직
+│   ├── lib/           # 유틸리티 함수 및 설정
+│   ├── styles/        # 전역 스타일 및 CSS 파일
+│   ├── util/          # 기타 헬퍼 함수
+│   └── middleware.ts  # Next.js 미들웨어
+├── public/            # 정적 파일 (이미지, 아이콘 등)
+└── ...설정 파일들
+```

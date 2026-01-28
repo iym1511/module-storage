@@ -25,9 +25,13 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.json(data);
 
         // 🔥 백엔드가 설정한 쿠키(Set-Cookie)를 그대로 클라이언트에게 전달
-        const setCookieHeader = backendResponse.headers.get('Set-Cookie');
-        if (setCookieHeader) {
-            response.headers.set('Set-Cookie', setCookieHeader);
+        const setCookieHeaders = backendResponse.headers.getSetCookie();
+        console.log('🍪 Backend Set-Cookie Headers:', setCookieHeaders);
+        
+        if (setCookieHeaders) {
+            setCookieHeaders.forEach((cookie) => {
+                response.headers.append('Set-Cookie', cookie);
+            });
         }
 
         return response;

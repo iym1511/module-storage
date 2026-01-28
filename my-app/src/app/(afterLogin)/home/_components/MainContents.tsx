@@ -6,6 +6,7 @@ import { Button as ShButton } from '@/components/ui/button';
 import DrawerSlide from '@/app/(afterLogin)/home/_components/DrawerSlide';
 import Contents from '@/app/(afterLogin)/home/_components/Contents';
 import InfiniteScrollExample from '@/app/(afterLogin)/home/_components/InfiniteScrollExample';
+import PaginationExample from '@/app/(afterLogin)/home/_components/PaginationExample';
 import UserList from './UserList';
 import PriceFilter from './PriceFilter';
 import UIComponentDemo from './UIComponentDemo';
@@ -67,6 +68,11 @@ function MainContents({ placeholderAry }: MainContentsProps) {
             <section className="space-y-6">
                  <h2 className="text-xl font-semibold border-b pb-2">5. 무한 스크롤 예제</h2>
                  <InfiniteScrollExample />
+            </section>
+
+            <section className="space-y-6">
+                 <h2 className="text-xl font-semibold border-b pb-2">6. 페이지네이션 예제</h2>
+                 <PaginationExample />
             </section>
 
             <div className="pb-20">

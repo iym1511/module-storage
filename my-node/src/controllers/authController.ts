@@ -226,10 +226,10 @@ export const login = async (req: Request, res: Response) => {
     console.log("node_env : ", process.env.NODE_ENV);
     // 쿠키 세팅
     res.cookie("access_token", accessToken, {
-      httpOnly: false, // 🔥 절대 프론트 접근 불가 (보안 핵심)
-      secure: true, // 🔥 HTTPS 필수 (로컬에선 false)
-      sameSite: "none", // 🔥 cross-site 요청시 쿠키 전달 허용
-      maxAge: 60 * 1000, // 5초
+      httpOnly: false, // 클라이언트에서 접근 가능
+      secure: false, // 로컬 개발 환경 호환을 위해 false 고정
+      sameSite: "lax", // 로컬 개발 환경 호환을 위해 lax 고정
+      maxAge: 60 * 1000, // 60초
       path: "/",
     });
 
