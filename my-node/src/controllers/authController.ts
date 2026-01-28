@@ -183,7 +183,7 @@ export const login = async (req: Request, res: Response) => {
       p_email: email,
     });
     const user = data?.[0];
-    console.log("user 함 보자 ", user);
+
     if (error || !user) {
       return res.status(401).json({
         error: "INVALID_CREDENTIALS",
@@ -226,8 +226,8 @@ export const login = async (req: Request, res: Response) => {
     console.log("node_env : ", process.env.NODE_ENV);
     // 쿠키 세팅
     res.cookie("access_token", accessToken, {
-      httpOnly: false, // 클라이언트에서 접근 가능
-      secure: false, // 로컬 개발 환경 호환을 위해 false 고정
+      httpOnly: true, // 클라이언트에서 접근 가능
+      secure: true, // 로컬 개발 환경 호환을 위해 false 고정
       sameSite: "lax", // 로컬 개발 환경 호환을 위해 lax 고정
       maxAge: 60 * 1000, // 60초
       path: "/",
@@ -235,7 +235,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: false,
+      secure: true,
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
       path: "/",

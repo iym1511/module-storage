@@ -5,29 +5,29 @@ export const createKy = (cookie?: string) => {
     const isServer = typeof window === 'undefined';
     return ky.create({
         prefixUrl: isServer
-            ? 'http://localhost:3000/' // Next.js 서버 (자기 자신) ❤️
+            ? 'http://localhost:3000/' // Next.js api 서버 (자기 자신) ❤️
             : '/', // 클라이언트는 상대 경로
-        // prefixUrl: isServer ?
-        //   'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐
-        // : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
+        // prefixUrl: isServer
+        //     ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐
+        //     : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
         headers: cookie ? { Cookie: cookie } : undefined, // ssr에서는 쿠키를 직점 담아줘야함 ❤️
         credentials: 'include', // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
         hooks: {
             beforeRequest: [
                 (request) => {
-                    /* ⭐
-                     * 인증 방식: HTTP-only Cookie 기반 JWT 인증
-                     * - 프론트에서는 access_token에 접근하지 않음
-                     * - Authorization 헤더를 사용하지 않음
-                     * - 브라우저가 쿠키를 자동 전송
-                     * - 서버(req.cookies)에서만 토큰 검증
-                     ⭐ */
-                    // const accessToken = getCookie('access_token');
-                    // const token = cookie || accessToken; // ssr일땐 cookie ❤️ , csr일땐accessToken ⭐
-                    // console.log('api.ts : ', accessToken);
-                    // if (token) {
-                    //     request.headers.set('Authorization', `Bearer ${token}`);
-                    // }
+                    //     /* ⭐
+                    //      * 인증 방식: HTTP-only Cookie 기반 JWT 인증
+                    //      * - 프론트에서는 access_token에 접근하지 않음
+                    //      * - Authorization 헤더를 사용하지 않음
+                    //      * - 브라우저가 쿠키를 자동 전송
+                    //      * - 서버(req.cookies)에서만 토큰 검증
+                    //      ⭐ */
+                    //     const accessToken = getCookie('access_token');
+                    //     const token = cookie || accessToken; // ssr일땐 cookie ❤️ , csr일땐accessToken ⭐
+                    //
+                    //     if (token) {
+                    //         request.headers.set('Authorization', `Bearer ${token}`);
+                    //     }
                 },
             ],
             afterResponse: [

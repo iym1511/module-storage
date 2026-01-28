@@ -33,17 +33,20 @@ export async function GET(request: NextRequest) {
 
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set('access_token', access_token, {
-        // JavaScript로 접근 가능 (document.cookie로 읽을 수 있음)
+        // false = JavaScript로 접근 가능 (document.cookie로 읽을 수 있음)
         // false = 프론트에서 토큰을 직접 사용할 수 있음 (API 헤더에 넣기 등)
         // ⚠️ XSS 공격에 취약할 수 있으므로 주의 필요
-        httpOnly: false, // 🔥 절대 프론트 접근 불가 (보안 핵심)
+        httpOnly: true, // 🔥 절대 프론트 접근 불가 (보안 핵심)
+
         // HTTPS 연결에서만 쿠키 전송 (HTTP에서는 전송 안 됨)
         // 단, localhost는 예외로 HTTP에서도 작동함
         // 프로덕션에서는 반드시 true로 설정해야 함
+        // httpOnly true일때  이것도 true가 함께 적용됨
         secure: true, // 🔥 HTTPS 필수 (로컬에선 false)
+
         // 다른 도메인(cross-site)에서의 요청에도 쿠키 전송 허용
-        // 'none' = 모든 외부 사이트 요청에 쿠키 포함
         // CORS API 호출, iframe 등에서 필요할 때 사용
+        // 'lax' : Strict와 비슷하지만, **"링크 타고 들어오는 이동(GET)"**은 허용해 줌.
         // ⚠️ 'none' 사용 시 반드시 secure: true 필요
         sameSite: 'lax', // 🔥 cross-site 요청시 쿠키 전달 허용
         maxAge: 15, // 15분
@@ -60,7 +63,7 @@ export async function GET(request: NextRequest) {
             // 외부 링크 클릭해서 들어와도 쿠키 안 보냄
             // ⚠️ UX 저하 가능: 이메일/카카오톡 링크로 접속 시 로그인 안 된 것처럼 보일 수 있음
             // 'lax'로 변경 고려 (보안과 UX 균형)
-            sameSite: 'strict',
+            sameSite: 'lax',
             maxAge: 7 * 24 * 60 * 60,
             path: '/',
         });
@@ -105,7 +108,7 @@ export async function POST(request: NextRequest) {
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set('access_token', access_token, {
         httpOnly: false,
-        secure: false,
+        secure: true,
         sameSite: 'lax',
         maxAge: 15, // 15분
         path: '/',

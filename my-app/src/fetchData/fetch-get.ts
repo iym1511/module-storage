@@ -25,14 +25,14 @@ export const apiTest = async (cookie?: string | any) => {
 };
 
 /* next api를 사용하지 않을 때 ⭐ */
-// export const apiTest2 = async (cookie?: any) => {
-//     try {
-//         // leading slash 제거: 'get-users' 사용
-//         const data = await createKy(cookie).get('get-users').json<UserType[]>();
-//
-//         return data;
-//     } catch (error: unknown) {
-//         console.error('❌ ky 요청 실패:', error);
-//         throw error;
-//     }
-// };
+export const apiTest2 = async (cookie?: any) => {
+    try {
+        // leading slash 제거: 'get-users' 사용
+        const data = await createKy(cookie).get('get-users').json<UserType[]>();
+
+        return data;
+    } catch (error: unknown) {
+        console.error('❌ ky 요청 실패:', error);
+        throw error;
+    }
+};
