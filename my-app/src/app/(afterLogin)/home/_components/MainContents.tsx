@@ -41,7 +41,7 @@ function MainContents({ placeholderAry }: MainContentsProps) {
             <section className="space-y-6">
                 <h2 className="text-xl font-semibold border-b pb-2">1. 사용자 목록 (Server Initial Data + React Query)</h2>
                 {/* 데이터 페칭 및 리스트 표시 로직 분리 */}
-                <UserList initialData={placeholderAry} />
+                <UserList />
             </section>
             
             <section className="space-y-6">

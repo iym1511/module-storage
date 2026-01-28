@@ -13,8 +13,12 @@ async function Page() {
     // 바로 데이터가 나와서 개빠르다.
 
     // ✅ Next 서버가 실행될때 브라우저에서 쿠키값을 전송해줘서 사용가능
+    // next api  용 ❤️
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
+
+    // next api 를 사용하지 않을 때 사용⭐
+    // const accessToken = cookieStore.get('access_token')?.value;
 
     // 모든 Query를 병렬로 Prefetch
     await Promise.all([

@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
     const cursor = searchParams.get('cursor') || '0';
     const limit = searchParams.get('limit') || '3';
 
-    const incomingCookieHeader = request.headers.get('cookie'); // ky에서 보낸 Cookie 헤더를 그대로 받음
+    // 1. 쿠키에서 'access_token' 값만 쏙 빼냅니다. (이름은 실제 쿠키 키값으로 변경하세요)
+    const accessToken = request.cookies.get('access_token')?.value;
 
     try {
         const res = await fetch(
@@ -14,13 +15,15 @@ export async function GET(request: NextRequest) {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(incomingCookieHeader && { Cookie: incomingCookieHeader }), // 받은 Cookie 헤더를 그대로 백엔드로 전달
+                    // 2. 토큰이 있을 때만 'Authorization: Bearer <토큰>' 헤더를 추가합니다.
+                    // (Cookie 헤더를 통째로 넘기는 것이 아니라, 인증 정보만 표준 규격으로 보냅니다)
+                    ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
                 },
             },
         );
 
         const data = await res.json();
-        
+
         // 백엔드의 상태 코드(401 등)와 데이터를 그대로 프론트엔드로 전달
         return NextResponse.json(data, { status: res.status });
     } catch (error) {

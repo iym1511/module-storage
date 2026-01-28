@@ -14,6 +14,7 @@ export default function InfiniteScrollExample() {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: ['infiniteItems'],
         queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi({ pageParam: pageParam as number }),
+        // queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi2({ pageParam: pageParam as number }),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {
             // nextCursor가 없으면 즉시 undefined 반환 (추가 로직 실행 안 함)

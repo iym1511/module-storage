@@ -1,15 +1,16 @@
 import ky from 'ky';
 
+/* 💡 SSR(서버 사이드 렌더링) 환경에서는 브라우저가 API 요청을 보내는 것이 아니라, Next.js Node 서버가 API 요청을 보냅니다. */
 export const createKy = (cookie?: string) => {
     const isServer = typeof window === 'undefined';
     return ky.create({
         prefixUrl: isServer
-            ? 'http://localhost:3000/' // Next.js 서버 (자기 자신)
+            ? 'http://localhost:3000/' // Next.js 서버 (자기 자신) ❤️
             : '/', // 클라이언트는 상대 경로
-        // prefixUrl: isServer
-        //     ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로
-        //     : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
-        headers: cookie ? { Cookie: cookie } : undefined,
+        // prefixUrl: isServer ?
+        //   'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐
+        // : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
+        headers: cookie ? { Cookie: cookie } : undefined, // ssr에서는 쿠키를 직점 담아줘야함 ❤️
         credentials: 'include', // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
         hooks: {
             beforeRequest: [
@@ -22,13 +23,11 @@ export const createKy = (cookie?: string) => {
                      * - 서버(req.cookies)에서만 토큰 검증
                      ⭐ */
                     // const accessToken = getCookie('access_token');
-                    // console.log('accessToken:', accessToken);
-                    //     if (accessToken) {
-                    //         request.headers.set(
-                    //             "Authorization",
-                    //             `Bearer ${accessToken}`,
-                    //         );
-                    //     }
+                    // const token = cookie || accessToken; // ssr일땐 cookie ❤️ , csr일땐accessToken ⭐
+                    // console.log('api.ts : ', accessToken);
+                    // if (token) {
+                    //     request.headers.set('Authorization', `Bearer ${token}`);
+                    // }
                 },
             ],
             afterResponse: [

@@ -22,18 +22,15 @@ export function authenticateToken(
   res: Response,
   next: NextFunction,
 ) {
-  const authHeader = req.headers["authorization"];
-  // Authorization 에서 가져온 "Bearer 토큰"
-  // const accessToken = authHeader && authHeader.split(" ")[1];
   // cookies 에 있는 토큰을 직접적으로 가져옴 (요청에 담겨있는 쿠키)
-  const accessToken = req.cookies?.access_token;
+  // const accessToken = req.cookies?.access_token;
 
-  if (!accessToken) {
-    return res.status(401).json({
-      error: "NO_TOKEN",
-      message: "토큰이 없습니다.",
-    });
-  }
+  // Authorization 에서 가져온 "Bearer 토큰"
+  const authHeader = req.headers["authorization"];
+  const accessToken =
+    authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null;
 
   if (!accessToken) {
     return res.status(401).json({

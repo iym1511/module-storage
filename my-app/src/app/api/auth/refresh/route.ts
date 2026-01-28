@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
         // JavaScript로 접근 가능 (document.cookie로 읽을 수 있음)
         // false = 프론트에서 토큰을 직접 사용할 수 있음 (API 헤더에 넣기 등)
         // ⚠️ XSS 공격에 취약할 수 있으므로 주의 필요
-        httpOnly: true, // 🔥 절대 프론트 접근 불가 (보안 핵심)
+        httpOnly: false, // 🔥 절대 프론트 접근 불가 (보안 핵심)
         // HTTPS 연결에서만 쿠키 전송 (HTTP에서는 전송 안 됨)
         // 단, localhost는 예외로 HTTP에서도 작동함
         // 프로덕션에서는 반드시 true로 설정해야 함
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         // 'none' = 모든 외부 사이트 요청에 쿠키 포함
         // CORS API 호출, iframe 등에서 필요할 때 사용
         // ⚠️ 'none' 사용 시 반드시 secure: true 필요
-        sameSite: 'strict', // 🔥 cross-site 요청시 쿠키 전달 허용
+        sameSite: 'lax', // 🔥 cross-site 요청시 쿠키 전달 허용
         maxAge: 15, // 15분
         path: '/',
     });
@@ -104,8 +104,8 @@ export async function POST(request: NextRequest) {
 
     // 🔥 accessToken 쿠키 재설정
     response.cookies.set('access_token', access_token, {
-        httpOnly: true,
-        secure: true,
+        httpOnly: false,
+        secure: false,
         sameSite: 'lax',
         maxAge: 15, // 15분
         path: '/',

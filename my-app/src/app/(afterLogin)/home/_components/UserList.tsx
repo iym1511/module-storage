@@ -4,15 +4,19 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiTest, UserType } from '../../../../fetchData/fetch-get';
+import { getCookie } from 'cookies-next';
 
 interface UserListProps {
     initialData?: UserType[];
 }
 
 export default function UserList({ initialData }: UserListProps) {
+    const token = getCookie('access_token');
+    console.log('엑세스 토큰 : ', token);
     const { data: users, isLoading } = useQuery({
         queryKey: ['users'],
         queryFn: apiTest,
+        // queryFn: () => apiTest2(token),
         initialData: initialData, // 초기 데이터 활용
         select: (data) =>
             data.map((user) => ({
