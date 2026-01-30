@@ -1,16 +1,15 @@
 import React, { ReactNode } from 'react';
 import RQProvider from '@/components/RQProvider';
+import Header from '@/components/layout/Header';
 
 interface Props {
     children: ReactNode;
-    // header: ReactNode;
-    // nav: ReactNode;
-    // modal: ReactNode;
 }
 
 function Layout({ children }: Props) {
     return (
         <div>
+            <Header />
             <RQProvider>{children}</RQProvider>
         </div>
     );

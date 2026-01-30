@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getUsers,
   login,
+  logout,
   refreshToken,
   signUp,
 } from "../controllers/authController";
@@ -13,6 +14,7 @@ const router = Router();
 /* POST */
 router.post("/signup", signUp);
 router.post("/login", login);
+router.post("/logout", logout);
 router.post("/refresh", refreshToken);
 // router.post("/verify-token", verifyAccessToken);
 

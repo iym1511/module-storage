@@ -1,14 +1,69 @@
-version: "3"
-services:
-    front:
-      build:
-        context: ./my-app
-        dockerfile: ./Dockerfile
-      networks:
-      - nat
-      restart: always
-      ports:
-      - 80:80
+version: "3"  # 도커 컴포즈 파일의 문법 버전입니다. (그냥 표준이라고 보시면 됩니다)
 
-networks:
-  nat:
+services:     # "지금부터 실행할 프로그램(서비스) 목록이야"
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  # =========================================
+  # 2번 작업자: 백엔드 (Node.js)
+  # =========================================
+  back:
+    # [빌드 설정]
+    # -> 백엔드 코드는 my-node 폴더 안에 있어. 거기서 빌드해.
+    build:
+      context: ./my-node
+      dockerfile: Dockerfile
+
+    # [포트 설정]
+    # -> 프론트엔드가(혹은 우리가) API 호출할 때 쓸 8000번 구멍을 뚫어줘.
+    ports:
+      - "8000:8000"
+
+    # [순서 설정]
+    # -> DB가 없으면 백엔드는 켜지자마자 에러 나니까, db가 켜질 때까지 기다려.
+    depends_on:
+      - db
+      - redis
+
+    # [환경 변수] ⭐ 여기가 제일 중요합니다! ⭐
+    # -> Node.js 코드(dbConfig.js)에서 process.env.DB_HOST 로 읽어갈 값들.
+    environment:
+      - PORT=8000
+      # 중요: 도커 내부끼리는 'localhost'가 아니라 '서비스 이름(db)'이 주소야!
+      - DB_HOST=db
+      - DB_USER=postgres
+      - DB_PASSWORD=8361
+      - DB_NAME=fullstackDB
+      - REDIS_HOST=redis
+
+  # =========================================
+  # 3번 작업자: 데이터docker-compose down -v베이스 (PostgreSQL)
+  # =========================================
+  db:
+    # [이미지 설정]
+    # -> DB는 우리가 코드를 짜는 게 아니니까, 남이 만든 공식 이미지(postgres:18)를 다운받아 써.
+    image: postgres:17
+
+    # [이름 설정]
+    # -> 헷갈리니까 컨테이너 이름표를 'my-postgres'라고 딱 붙여줘.
+    container_name: my-postgres
+
+    # [포트 설정]
+    # -> pgAdmin 같은 툴로 내가 관리해야 하니까 5432번 구멍 뚫어줘.
+    ports:
+      - "5435:5432"
+
+    # [환경 변수]
+    # -> DB 켜질 때 이 비밀번호로 초기 세팅해줘. (백엔드랑 똑같아야 함!)
+    environment:
+      POSTGRES_PASSWORD: 8361
+      POSTGRES_DB: fullstackDB
+
+    # [볼륨 설정] "데이터 저장소"
+    # -> 컨테이너가 꺼져도 데이터가 사라지면 안 되잖아?
+    # -> 내 컴퓨터의 ./postgres_data 폴더랑 도커 안의 데이터 폴더를 연결(동기화)해.
+    # -> (이거 안 하면 껐다 켤 때마다 회원가입 정보 다 날아감!)
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data

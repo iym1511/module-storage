@@ -1,6 +1,7 @@
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
+import path from "path";
 
 const swaggerDefinition = {
     openapi: "3.0.0",
@@ -11,14 +12,20 @@ const swaggerDefinition = {
     },
     servers: [
         {
-            url: "http://localhost:8000", // 포트 맞춰줘
+            url: "http://localhost:8000",
         },
     ],
 };
 
 const options = {
     swaggerDefinition,
-    apis: ["./src/**/*.ts"], // 이 경로 꼭 맞춰야 swagger-jsdoc이 인식함
+    // 절대 경로 사용 및 controllers 폴더 명시
+    apis: [
+        path.join(__dirname, "../../src/routes/*.ts"),
+        path.join(__dirname, "../../src/controllers/*.ts"),
+        path.join(__dirname, "../../dist/routes/*.js"),
+        path.join(__dirname, "../../dist/controllers/*.js")
+    ], 
 };
 
 const swaggerSpec = swaggerJSDoc(options);
