@@ -14,6 +14,8 @@ function RQProvider({ children }: Props) {
             defaultOptions: {
                 // react-query 전역 설정
                 queries: {
+                    staleTime: 1000 * 60,
+                    gcTime: 1000 * 60 * 5,
                     // 사용자가 다시 브라우저로 돌아왔을 때(refocus), 자동으로 refetch 하지 않음
                     refetchOnWindowFocus: false,
 
