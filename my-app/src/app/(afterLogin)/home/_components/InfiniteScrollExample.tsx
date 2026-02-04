@@ -4,16 +4,18 @@ import React, { useEffect } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 // 무한스크롤 감지를 위해 react-intersection-observer 라이브러리 필요
 import { useInView } from 'react-intersection-observer';
-import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite';
+import { fetchInfiniteItemsFromApi2 } from '@/fetchData/fetch-infinite';
 import { Card } from '@/components/ui/ui-Button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getCookie } from 'cookies-next';
 
 export default function InfiniteScrollExample() {
     const { ref, inView } = useInView();
-
+    const token = getCookie('access_token');
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: ['infiniteItems'],
-        queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi({ pageParam: pageParam as number }),
+        queryFn: ({ pageParam }) =>
+            fetchInfiniteItemsFromApi2({ pageParam: pageParam as number, cookieString: token }),
         // queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi2({ pageParam: pageParam as number }),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {

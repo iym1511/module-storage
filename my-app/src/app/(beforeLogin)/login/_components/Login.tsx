@@ -87,10 +87,10 @@ function Login() {
                 },
                 body: JSON.stringify(userInfo),
             });
-            router.push('/home');
 
             if (res.ok) {
                 console.log('로그인 성공', res);
+                router.push('/home');
             } else {
                 const data = await res.json();
                 alert(data.message || '로그인에 실패했습니다.');

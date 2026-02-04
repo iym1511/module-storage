@@ -22,12 +22,9 @@ export function authenticateToken(
   res: Response,
   next: NextFunction,
 ) {
-  // cookies 에 있는 토큰을 직접적으로 가져옴 (요청에 담겨있는 쿠키)
-  // const accessToken = req.cookies?.access_token;
-
-  // Authorization 에서 가져온 "Bearer 토큰"
+  // 1. Authorization 헤더에서 토큰 추출
   const authHeader = req.headers["authorization"];
-  const accessToken =
+  let accessToken =
     authHeader && authHeader.startsWith("Bearer ")
       ? authHeader.split(" ")[1]
       : null;

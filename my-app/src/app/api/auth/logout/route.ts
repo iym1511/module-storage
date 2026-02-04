@@ -16,7 +16,13 @@ export async function POST() {
 
         // 백엔드 응답 그대로 반환
         const data = await backendResponse.json();
-        return NextResponse.json(data, { status: backendResponse.status });
+        const response = NextResponse.json(data, { status: backendResponse.status });
+
+        // Next.js에서 직접 쿠키 삭제 (더 깔끔한 방식)
+        response.cookies.delete('access_token');
+        response.cookies.delete('refresh_token');
+
+        return response;
     } catch (error) {
         console.error('Logout error:', error);
         return NextResponse.json({ message: 'Logged out successfully' }, { status: 200 });

@@ -1,9 +1,9 @@
 import React from 'react';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import MainContents from '@/app/(afterLogin)/home/_components/MainContents';
-import { apiTest, UserType } from '@/fetchData/fetch-get';
-import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite';
-import { fetchPaginatedItems } from '@/fetchData/fetch-pagination';
+import { apiTest2, UserType } from '@/fetchData/fetch-get';
+import { fetchInfiniteItemsFromApi2 } from '@/fetchData/fetch-infinite';
+import { fetchPaginatedItems2 } from '@/fetchData/fetch-pagination';
 import { cookies } from 'next/headers';
 
 async function Page() {
@@ -13,27 +13,27 @@ async function Page() {
     // 바로 데이터가 나와서 개빠르다.
 
     // ✅ Next 서버가 실행될때 브라우저에서 쿠키값을 전송해줘서 사용가능
-    // next api  용 ❤️
     const cookieStore = await cookies();
-    const cookieString = cookieStore.toString();
+    // next api 용 ❤️
+    // const cookieString = cookieStore.toString();
 
     // next api 를 사용하지 않을 때 사용⭐
-    // const accessToken = cookieStore.get('access_token')?.value;
+    const accessToken = cookieStore.get('access_token')?.value;
 
     // 모든 Query를 병렬로 Prefetch
     await Promise.all([
         // 유저 리스트 호출
         queryClient.prefetchQuery({
             queryKey: ['users'],
-            queryFn: () => apiTest(cookieString),
+            queryFn: () => apiTest2(accessToken),
         }),
         // 인피니티 스크롤
         queryClient.prefetchInfiniteQuery({
             queryKey: ['infiniteItems'],
             queryFn: ({ pageParam }) =>
-                fetchInfiniteItemsFromApi({
+                fetchInfiniteItemsFromApi2({
                     pageParam: pageParam as number,
-                    cookieString,
+                    cookieString: accessToken,
                 }),
             initialPageParam: 0,
             getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -42,9 +42,9 @@ async function Page() {
         queryClient.prefetchQuery({
             queryKey: ['paginatedItems', 1],
             queryFn: () =>
-                fetchPaginatedItems({
+                fetchPaginatedItems2({
                     page: 1,
-                    cookieString,
+                    cookieString: accessToken,
                 }),
         }),
     ]);

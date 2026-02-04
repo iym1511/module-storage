@@ -249,20 +249,6 @@ export const logout = async (req: Request, res: Response) => {
       }
     }
 
-    res.clearCookie("access_token", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-    });
-
-    res.clearCookie("refresh_token", {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-    });
-
     return res.status(200).json({ message: "로그아웃 성공" });
   } catch (err) {
     console.error(err);

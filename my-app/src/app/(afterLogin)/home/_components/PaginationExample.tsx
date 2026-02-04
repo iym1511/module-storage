@@ -2,18 +2,20 @@
 
 import React, { useState } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import { fetchPaginatedItems } from '@/fetchData/fetch-pagination';
+import { fetchPaginatedItems2 } from '@/fetchData/fetch-pagination';
 import { Card } from '@/components/ui/ui-Button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
+import { getCookie } from 'cookies-next';
 
 export default function PaginationExample() {
+    const token = getCookie('access_token');
     const [page, setPage] = useState(1);
 
     // useQuery 사용 (기존 데이터를 유지하며 새 데이터 fetch -> 깜빡임 방지)
     const { data, isLoading, isError, isPlaceholderData } = useQuery({
         queryKey: ['paginatedItems', page],
-        queryFn: () => fetchPaginatedItems({ page }),
+        queryFn: () => fetchPaginatedItems2({ page, cookieString: token }),
         placeholderData: keepPreviousData, // 👈 중요! 새 데이터를 가져올 때까지 이전 데이터를 보여줌 (깜빡임 방지 / 페이지네이션에 유용)
     });
 

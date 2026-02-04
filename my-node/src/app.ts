@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes";
 import infiniteRoutes from "./routes/infiniteRoutes";
+import boardRoutes from "./routes/boardRoutes";
 import {setupSwagger} from "./config/swagger";
 import cors from "cors";
 
@@ -25,6 +26,7 @@ app.use(cookieParser()); // ✅ 요청 헤더의 쿠키를 객체로 파싱
 
 app.use("/", authRoutes);
 app.use("/infinite", infiniteRoutes);
+app.use("/board", boardRoutes);
 
 // Swagger 연결
 setupSwagger(app);
