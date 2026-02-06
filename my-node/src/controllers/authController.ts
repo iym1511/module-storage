@@ -110,7 +110,7 @@ export const login = async (req: Request, res: Response) => {
     const accessToken = jwt.sign(
       { email: user.v_email, name: user.v_name },
       process.env.JWT_SECRET!,
-      { expiresIn: "15s" },
+      { expiresIn: "60s" },
     );
 
     // Refresh Token 생성 (tokenId 포함)
@@ -124,22 +124,22 @@ export const login = async (req: Request, res: Response) => {
     const redisKey = `refresh_token:${user.v_email}`;
     await redis.setex(redisKey, 7 * 24 * 60 * 60, tokenId); // 7일 TTL
 
-    // 쿠키 세팅
-    res.cookie("access_token", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 60 * 1000,
-      path: "/",
-    });
-
-    res.cookie("refresh_token", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
-      path: "/",
-    });
+    // // 쿠키 세팅
+    // res.cookie("access_token", accessToken, {
+    //   httpOnly: false,
+    //   secure: true,
+    //   sameSite: "lax",
+    //   maxAge: 60 * 1000,
+    //   path: "/",
+    // });
+    //
+    // res.cookie("refresh_token", refreshToken, {
+    //   httpOnly: true,
+    //   secure: true,
+    //   sameSite: "lax",
+    //   maxAge: 7 * 24 * 60 * 60 * 1000, // 7일
+    //   path: "/",
+    // });
 
     return res.status(200).json({
       user: { email: user.v_email, name: user.v_name },

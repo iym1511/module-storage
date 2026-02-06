@@ -61,6 +61,7 @@ function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(signUpInfo),
             });
 
@@ -85,6 +86,7 @@ function Login() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(userInfo),
             });
 

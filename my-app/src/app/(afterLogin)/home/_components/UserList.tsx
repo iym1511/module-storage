@@ -4,19 +4,16 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
 import { apiTest2, UserType } from '../../../../fetchData/fetch-get';
-import { getCookie } from 'cookies-next';
 
 interface UserListProps {
     initialData?: UserType[];
 }
 
 export default function UserList({ initialData }: UserListProps) {
-    const token = getCookie('access_token');
-
     const { data: users, isLoading } = useQuery({
         queryKey: ['users'],
         // queryFn: apiTest,
-        queryFn: () => apiTest2(token),
+        queryFn: () => apiTest2(),
         initialData: initialData, // 초기 데이터 활용
         select: (data) =>
             data.map((user) => ({
@@ -24,6 +21,7 @@ export default function UserList({ initialData }: UserListProps) {
                 name: `${user.name} (가공됨)`,
             })),
     });
+    console.log('가져오나? ', users);
 
     if (isLoading) {
         return (

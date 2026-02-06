@@ -8,6 +8,7 @@
 * **Client State:** Zustand
 * **Server State:** TanStack Query (React Query)
 * **Form:** React Hook Form + Zod
+* **Authentication:** JWT (HTTP-only Cookie)
 
 ---
 
@@ -89,6 +90,31 @@ import type { User } from '@/types/user';
 
 ---
 
+## Authentication & API Architecture
+
+### 1. Token Handling Strategy
+*   **Mechanism:** JWT in HTTP-only Cookies (`access_token`, `refresh_token`).
+*   **Backend Auth:** Supports **both** Cookie and Authorization Header.
+
+### 2. API Routing Strategy
+*   **Authentication (Login/Logout/Refresh):**
+    *   **Use Next.js API Routes** (`app/api/auth/*`).
+    *   **Reason:** Requires secure server-side manipulation of HttpOnly Cookies (Set-Cookie) and Token Refresh logic.
+*   **General Data Fetching:**
+    *   **CSR:** Use **Next.js Rewrites** (`/ptc/*` -> Backend) directly.
+    *   **SSR:** Call Backend directly (`http://localhost:8000`).
+    *   **Do Not Use:** Intermediate Next.js API Routes (`app/api/users` etc.) just to inject headers.
+        *   *Why?* The backend reads cookies directly. Passing through Next.js API adds unnecessary latency and code duplication.
+
+### 3. `createKy` Utility
+*   **Client Mode:** Sets `prefixUrl` to `/ptc` (proxied to backend).
+*   **Server Mode:** Sets `prefixUrl` to Backend URL (`http://localhost:8000`).
+*   **Header Handling:**
+    *   **CSR:** Relies on browser's automatic cookie transmission via Rewrite (Same-Origin).
+    *   **SSR:** Requires manual cookie injection via arguments.
+
+---
+
 ## Patterns
 
 ### SSR Prefetch + Hydration (App Router 최상위 Server Component)
@@ -97,7 +123,7 @@ import type { User } from '@/types/user';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
 import MainContents from './_components/MainContents';
-import { apiTest } from '@/fetchData/fetch-get';
+import { apiTest2 } from '@/fetchData/fetch-get';
 import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite';
 import { fetchPaginatedItems } from '@/fetchData/fetch-pagination';
 
@@ -110,7 +136,7 @@ export default async function Page() {
   await Promise.all([
     queryClient.prefetchQuery({
       queryKey: ['users'],
-      queryFn: () => apiTest(cookieString),
+      queryFn: () => apiTest2(cookieString),
     }),
 
     queryClient.prefetchInfiniteQuery({

@@ -13,19 +13,21 @@ async function Page() {
     // 바로 데이터가 나와서 개빠르다.
 
     // ✅ Next 서버가 실행될때 브라우저에서 쿠키값을 전송해줘서 사용가능
+    // 💡 next.config에서 rewrites 로 설정한 경로를 api url에 사용해서 csr 에서 쿠키가 헤더에 들어간다
     const cookieStore = await cookies();
-    // next api 용 ❤️
-    // const cookieString = cookieStore.toString();
+
+    // ssr에서 쿠키 전송 시 문자열로 반환
+    const cookieString = cookieStore.toString();
 
     // next api 를 사용하지 않을 때 사용⭐
-    const accessToken = cookieStore.get('access_token')?.value;
+    // const accessToken = cookieStore.get('access_token')?.value;
 
     // 모든 Query를 병렬로 Prefetch
     await Promise.all([
         // 유저 리스트 호출
         queryClient.prefetchQuery({
             queryKey: ['users'],
-            queryFn: () => apiTest2(accessToken),
+            queryFn: () => apiTest2(cookieString),
         }),
         // 인피니티 스크롤
         queryClient.prefetchInfiniteQuery({
@@ -33,7 +35,7 @@ async function Page() {
             queryFn: ({ pageParam }) =>
                 fetchInfiniteItemsFromApi2({
                     pageParam: pageParam as number,
-                    cookieString: accessToken,
+                    cookieString,
                 }),
             initialPageParam: 0,
             getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -44,7 +46,7 @@ async function Page() {
             queryFn: () =>
                 fetchPaginatedItems2({
                     page: 1,
-                    cookieString: accessToken,
+                    cookieString,
                 }),
         }),
     ]);
