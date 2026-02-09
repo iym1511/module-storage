@@ -7,17 +7,16 @@ import pool from "../util/db";
  */
 export const getBoards = async (req: Request, res: Response) => {
   try {
-    const query = `
-      SELECT b.id, b.title, b.content, b.created_at, b.author_id, u.email as author_email, u.name as author_name
-      FROM public.boards b
-      LEFT JOIN auth.users u ON b.author_id = u.id
-      ORDER BY b.created_at DESC
-    `;
+    // 프로시저 호출 (함수가 테이블을 반환하므로 SELECT * FROM 사용)
+    const query = `SELECT * FROM public.sp_get_boards()`;
     const result = await pool.query(query);
     res.json(result.rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "DB_ERROR", message: "게시글 목록을 불러오지 못했습니다." });
+    res.status(500).json({
+      error: "DB_ERROR",
+      message: "게시글 목록을 불러오지 못했습니다.",
+    });
   }
 };
 
@@ -28,22 +27,21 @@ export const getBoards = async (req: Request, res: Response) => {
 export const getBoardById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const query = `
-      SELECT b.id, b.title, b.content, b.created_at, b.author_id, u.email as author_email, u.name as author_name
-      FROM public.boards b
-      LEFT JOIN auth.users u ON b.author_id = u.id
-      WHERE b.id = $1
-    `;
+    const query = `SELECT * FROM public.sp_get_board_by_id($1)`;
     const result = await pool.query(query, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "NOT_FOUND", message: "게시글을 찾을 수 없습니다." });
+      return res
+        .status(404)
+        .json({ error: "NOT_FOUND", message: "게시글을 찾을 수 없습니다." });
     }
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "DB_ERROR", message: "게시글을 불러오지 못했습니다." });
+    res
+      .status(500)
+      .json({ error: "DB_ERROR", message: "게시글을 불러오지 못했습니다." });
   }
 };
 
@@ -57,20 +55,26 @@ export const createBoard = async (req: Request, res: Response) => {
     const userEmail = req.user?.email;
 
     if (!userEmail) {
-      return res.status(401).json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
+      return res
+        .status(401)
+        .json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
     }
 
-    const query = `
-      INSERT INTO public.boards (title, content, author_id)
-      VALUES ($1, $2, (SELECT id FROM auth.users WHERE email = $3))
-      RETURNING *
-    `;
+    const query = `SELECT * FROM public.sp_create_board($1, $2, $3)`;
     const result = await pool.query(query, [title, content, userEmail]);
 
     res.status(201).json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: "DB_ERROR", message: "게시글 작성에 실패했습니다." });
+    if (err.message === "User not found") {
+      return res.status(400).json({
+        error: "USER_NOT_FOUND",
+        message: "사용자 정보를 찾을 수 없습니다.",
+      });
+    }
+    res
+      .status(500)
+      .json({ error: "DB_ERROR", message: "게시글 작성에 실패했습니다." });
   }
 };
 
@@ -85,34 +89,30 @@ export const updateBoard = async (req: Request, res: Response) => {
     const userEmail = req.user?.email;
 
     if (!userEmail) {
-      return res.status(401).json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
+      return res
+        .status(401)
+        .json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
     }
 
-    // 작성자 확인 (본인만 수정 가능)
-    const checkQuery = `
-      SELECT b.id
-      FROM public.boards b
-      JOIN auth.users u ON b.author_id = u.id
-      WHERE b.id = $1 AND u.email = $2
-    `;
-    const checkResult = await pool.query(checkQuery, [id, userEmail]);
-
-    if (checkResult.rows.length === 0) {
-      return res.status(403).json({ error: "FORBIDDEN", message: "수정 권한이 없습니다." });
-    }
-
-    const updateQuery = `
-      UPDATE public.boards
-      SET title = $1, content = $2, updated_at = CURRENT_TIMESTAMP
-      WHERE id = $3
-      RETURNING *
-    `;
-    const result = await pool.query(updateQuery, [title, content, id]);
+    const query = `SELECT * FROM public.sp_update_board($1, $2, $3, $4)`;
+    const result = await pool.query(query, [id, title, content, userEmail]);
 
     res.json(result.rows[0]);
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: "DB_ERROR", message: "게시글 수정에 실패했습니다." });
+    if (err.message.includes("Permission denied")) {
+      return res
+        .status(403)
+        .json({ error: "FORBIDDEN", message: "수정 권한이 없습니다." });
+    }
+    if (err.message.includes("Board not found")) {
+      return res
+        .status(404)
+        .json({ error: "NOT_FOUND", message: "게시글을 찾을 수 없습니다." });
+    }
+    res
+      .status(500)
+      .json({ error: "DB_ERROR", message: "게시글 수정에 실패했습니다." });
   }
 };
 
@@ -126,27 +126,34 @@ export const deleteBoard = async (req: Request, res: Response) => {
     const userEmail = req.user?.email;
 
     if (!userEmail) {
-      return res.status(401).json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
+      return res
+        .status(401)
+        .json({ error: "UNAUTHORIZED", message: "로그인이 필요합니다." });
     }
 
-    // 작성자 확인
-    const checkQuery = `
-      SELECT b.id
-      FROM public.boards b
-      JOIN auth.users u ON b.author_id = u.id
-      WHERE b.id = $1 AND u.email = $2
-    `;
-    const checkResult = await pool.query(checkQuery, [id, userEmail]);
+    const query = `SELECT * FROM public.sp_delete_board($1, $2)`;
+    const result = await pool.query(query, [id, userEmail]);
 
-    if (checkResult.rows.length === 0) {
-      return res.status(403).json({ error: "FORBIDDEN", message: "삭제 권한이 없습니다." });
+    // sp_delete_board returns BOOLEAN (true if deleted, false if not found)
+    const isDeleted = result.rows[0]?.sp_delete_board;
+
+    if (isDeleted === false) {
+      // null이 아니라 명시적 false인 경우
+      return res
+        .status(404)
+        .json({ error: "NOT_FOUND", message: "게시글을 찾을 수 없습니다." });
     }
-
-    await pool.query("DELETE FROM public.boards WHERE id = $1", [id]);
 
     res.json({ message: "게시글이 삭제되었습니다." });
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    res.status(500).json({ error: "DB_ERROR", message: "게시글 삭제에 실패했습니다." });
+    if (err.message.includes("Permission denied")) {
+      return res
+        .status(403)
+        .json({ error: "FORBIDDEN", message: "삭제 권한이 없습니다." });
+    }
+    res
+      .status(500)
+      .json({ error: "DB_ERROR", message: "게시글 삭제에 실패했습니다." });
   }
 };

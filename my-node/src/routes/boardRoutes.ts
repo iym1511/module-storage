@@ -11,8 +11,8 @@ import {
 const router = Router();
 
 // Public routes (누구나 조회 가능)
-router.get("/", getBoards);
-router.get("/:id", getBoardById);
+router.get("/", authenticateToken, getBoards);
+router.get("/:id", authenticateToken, getBoardById);
 
 // Protected routes (로그인 필요)
 router.post("/", authenticateToken, createBoard);
