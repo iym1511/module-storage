@@ -21,7 +21,6 @@ export default function UserList({ initialData }: UserListProps) {
                 name: `${user.name} (가공됨)`,
             })),
     });
-    console.log('가져오나?', users);
 
     if (isLoading) {
         return (
