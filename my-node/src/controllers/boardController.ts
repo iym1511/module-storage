@@ -98,6 +98,16 @@ export const updateBoard = async (req: Request, res: Response) => {
     const result = await pool.query(query, [id, title, content, userEmail]);
 
     res.json(result.rows[0]);
+    // 위 처럼 데이터 주는 이유
+    // {
+    //   command: 'SELECT',
+    //     rowCount: 1,
+    //   oid: null,
+    //   rows: [  // 👈 여기에 진짜 데이터가 "배열"로 들어있음
+    //   { id: 1, title: '안녕하세요', content: '반갑습니다' }
+    // ],
+    //   fields: [ ... ]
+    // }
   } catch (err: any) {
     console.error(err);
     if (err.message.includes("Permission denied")) {

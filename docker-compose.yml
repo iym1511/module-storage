@@ -36,7 +36,7 @@ services:     # "지금부터 실행할 프로그램(서비스) 목록이야"
 #      - DB_HOST=host.docker.internal
       - DB_HOST=db # 이건 도커 내부의 배포된 db연결 시
       - DB_USER=postgres
-      - DB_PASSWORD=8361
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
       - DB_NAME=fullstackDB
       - REDIS_HOST=redis
 
@@ -61,7 +61,8 @@ services:     # "지금부터 실행할 프로그램(서비스) 목록이야"
     # [환경 변수]
     # -> DB 켜질 때 이 비밀번호로 초기 세팅해줘. (백엔드랑 똑같아야 함!)
     environment:
-      POSTGRES_PASSWORD: 8361
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: fullstackDB
 
     # [볼륨 설정] "데이터 저장소"
