@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         if (accessToken) {
             response.cookies.set('access_token', accessToken, {
                 httpOnly: true, // 프론트 접근 허용 / JS는 자유롭게 읽는다
-                secure: true, // HTTPS 요청에서만 쿠키 전송 / HTTPS에서만 전송되고
+                secure: true, // HTTPS 요청에서만 쿠키 전송 / HTTPS에서만 전송되고 / localhost 에서는 https 아니여도 예외적으로 쿠키읽을 수 있음
                 sameSite: 'lax',
                 maxAge: 60, // 60초 (백엔드와 동일하게)
                 path: '/',
