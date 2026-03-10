@@ -38,6 +38,8 @@ function RQProvider({ children }: Props) {
                                      - 용도: 화면 귀퉁이의 작은 '업데이트 중...' 텍스트나, 버튼 일시 비활성화 등에 사용.
                                      - 경고: 이걸로 메인 로딩창을 띄우면 staleTime: 0 때문에 매번 로딩창이 화면을 가려버립니다 (캐시 사용 불가).
 
+                                  3. isPending(데이터 없음)과 isFetching(통신 중)이 둘 다 true일 때만 true가 됩니다
+
                                   * 참고: isLoading은 v5에서 isFetching && isPending 과 동일한 의미로 쓰입니다.
                                 */
 
