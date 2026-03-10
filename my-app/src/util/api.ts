@@ -19,7 +19,7 @@ export const createKy = (cookie?: string) => {
                         try {
                             // 1. 리프레시 토큰으로 액세스 토큰 갱신 시도
                             const refreshRes = await fetch('/api/auth/refresh', {
-                                method: 'POST',
+                                method: 'GET',
                             });
 
                             // 2. 갱신 성공 시 원래 요청 재시도
