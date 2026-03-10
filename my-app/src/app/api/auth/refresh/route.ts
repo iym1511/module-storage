@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET (페이지 이동용)
 // 사용자가 직접 URL을 입력하거나, 서버사이드(Middleware)에서 페이지를 통째로 옮길 때 사용합니다.
 // 로직이 끝나면 NextResponse.redirect()를 통해 특정 페이지(홈 등)로 브라우저를 강제 이동시킵니다.
+// ⚠️ [2026-03-10 수정] : ky.create 와 middleware.ts 에서 둘다 GET으로 요청하면 분리필요x
 export async function GET(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
 
@@ -76,54 +77,54 @@ export async function GET(request: NextRequest) {
 // 지금처럼 인피니티 스크롤 같은 배경 API 요청 중에 토큰을 갱신할 때 사용합니다.
 // 페이지가 이동되면 안 되고, 단순히 쿠키만 구워준 뒤 JSON 응답({ message: "success" })을 보내야 합니다.
 // 만약 여기서 GET처럼 리다이렉트를 해버리면, API 요청 결과로 데이터 대신 "홈페이지 HTML 코드"가 날아와서 에러가 나게 됩니다.
-export async function POST(request: NextRequest) {
-    const refreshToken = request.cookies.get('refresh_token')?.value;
-
-    if (!refreshToken) {
-        return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
-    }
-
-    // 🔥 백엔드에 refresh 요청
-    const backendResponse = await fetch(`${process.env.BACKEND_URL}/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken }),
-    });
-
-    // 🔥 실패 시 401 반환
-    if (!backendResponse.ok) {
-        const errorData = await backendResponse.json();
-        const res = NextResponse.json(errorData, { status: backendResponse.status });
-        console.log('출력!', res);
-        res.cookies.delete('access_token');
-        res.cookies.delete('refresh_token');
-        return res;
-    }
-
-    // 🔥 백엔드에서 access, refresh 둘 다 받기
-    const { access_token, refresh_token } = await backendResponse.json();
-
-    const response = NextResponse.json({ message: 'Refreshed successfully' });
-
-    // 🔥 accessToken 쿠키 재설정
-    response.cookies.set('access_token', access_token, {
-        httpOnly: false,
-        secure: true,
-        sameSite: 'lax',
-        maxAge: 15, // 15분
-        path: '/',
-    });
-
-    // 🔥 refreshToken 쿠키 재설정
-    if (refresh_token) {
-        response.cookies.set('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60,
-            path: '/',
-        });
-    }
-
-    return response;
-}
+// export async function POST(request: NextRequest) {
+//     const refreshToken = request.cookies.get('refresh_token')?.value;
+//
+//     if (!refreshToken) {
+//         return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
+//     }
+//
+//     // 🔥 백엔드에 refresh 요청
+//     const backendResponse = await fetch(`${process.env.BACKEND_URL}/refresh`, {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ refreshToken }),
+//     });
+//
+//     // 🔥 실패 시 401 반환
+//     if (!backendResponse.ok) {
+//         const errorData = await backendResponse.json();
+//         const res = NextResponse.json(errorData, { status: backendResponse.status });
+//         console.log('출력!', res);
+//         res.cookies.delete('access_token');
+//         res.cookies.delete('refresh_token');
+//         return res;
+//     }
+//
+//     // 🔥 백엔드에서 access, refresh 둘 다 받기
+//     const { access_token, refresh_token } = await backendResponse.json();
+//
+//     const response = NextResponse.json({ message: 'Refreshed successfully' });
+//
+//     // 🔥 accessToken 쿠키 재설정
+//     response.cookies.set('access_token', access_token, {
+//         httpOnly: false,
+//         secure: true,
+//         sameSite: 'lax',
+//         maxAge: 15, // 15분
+//         path: '/',
+//     });
+//
+//     // 🔥 refreshToken 쿠키 재설정
+//     if (refresh_token) {
+//         response.cookies.set('refresh_token', refresh_token, {
+//             httpOnly: true,
+//             secure: true,
+//             sameSite: 'strict',
+//             maxAge: 7 * 24 * 60 * 60,
+//             path: '/',
+//         });
+//     }
+//
+//     return response;
+// }
