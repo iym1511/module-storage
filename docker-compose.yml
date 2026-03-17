@@ -71,3 +71,4 @@ services:     # "지금부터 실행할 프로그램(서비스) 목록이야"
     # -> (이거 안 하면 껐다 켤 때마다 회원가입 정보 다 날아감!)
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

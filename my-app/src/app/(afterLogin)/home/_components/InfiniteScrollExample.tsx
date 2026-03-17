@@ -15,7 +15,10 @@ export default function InfiniteScrollExample() {
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
         queryKey: ['infiniteItems'],
         queryFn: ({ pageParam }) =>
-            fetchInfiniteItemsFromApi2({ pageParam: pageParam as number, cookieString: token }),
+            fetchInfiniteItemsFromApi2({
+                pageParam: pageParam as number,
+                cookieString: token as string,
+            }),
         // queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi2({ pageParam: pageParam as number }),
         initialPageParam: 0,
         getNextPageParam: (lastPage) => {

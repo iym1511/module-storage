@@ -15,7 +15,7 @@ export default function PaginationExample() {
     // useQuery 사용 (기존 데이터를 유지하며 새 데이터 fetch -> 깜빡임 방지)
     const { data, isLoading, isError, isPlaceholderData } = useQuery({
         queryKey: ['paginatedItems', page],
-        queryFn: () => fetchPaginatedItems2({ page, cookieString: token }),
+        queryFn: () => fetchPaginatedItems2({ page, cookieString: token as string }),
         placeholderData: keepPreviousData, // 👈 중요! 새 데이터를 가져올 때까지 이전 데이터를 보여줌 (깜빡임 방지 / 페이지네이션에 유용)
     });
 
