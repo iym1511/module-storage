@@ -15,6 +15,7 @@ export function ThemeToggle() {
     /**
      * 컴포넌트가 마운트된 후에만 UI를 렌더링하여,
      * 서버사이드 렌더링(SSR) 시 발생할 수 있는 하이드레이션 오류를 방지합니다.
+     * resolvedTheme 가 ssr에서 데이터를미리 받아오기 때문에 hydration 에러 발생 (resolvedTheme 값을 서버에서 예상값 받아서 뼈대 만듬)
      */
     useEffect(() => {
         setMounted(true);
