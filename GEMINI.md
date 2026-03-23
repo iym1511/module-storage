@@ -3,6 +3,7 @@
 ## 기술 스택 (Tech Stack)
 
 - **프레임워크:** Next.js (최신 버전, App Router 사용)
+- **컴파일러:** React Compiler (Babel/SWC 대체, 자동 메모이제이션)
 - **언어:** TypeScript
 - **스타일링:** Tailwind CSS
 - **클라이언트 상태 관리:** Zustand
@@ -19,6 +20,7 @@
 - **서버 컴포넌트 우선:** 기본적으로 React Server Component(RSC)를 사용합니다. 훅이나 상호작용이 필요할 때만 `'use client'`를 명시합니다.
 - **Server Actions 우선:** API Route는 불가피할 때만 사용합니다.
 - **로딩/에러 처리:** `loading.tsx`, `error.tsx` 파일을 적극 활용합니다.
+- **React Compiler (자동 메모이제이션):** `next.config.ts`에 `reactCompiler: true`가 설정되어 있습니다. 따라서 수동으로 `useMemo`나 `useCallback`을 사용하여 최적화하는 대신, 깨끗하고 선언적인 코드를 작성하는 데 집중합니다. 컴파일러가 렌더링 성능을 자동으로 최적화합니다.
 
 ### 2. 스타일링 (Tailwind)
 
@@ -138,8 +140,8 @@ export const createKy = (cookie?: string) => {
   const isServer = typeof window === 'undefined';
   return ky.create({
     prefixUrl: isServer
-      ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
-      : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
+            ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
+            : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
     headers: cookie ? { Cookie: cookie } : undefined, // ssr에서는 쿠키를 직점 담아줘야함 ❤️
     // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
     // ⭐ /ptc 를 설정한 rewrite 가 있기때문 localhost:8000 생으로 쓸려면 include 필요
@@ -261,10 +263,10 @@ export default async function Page() {
     queryClient.prefetchInfiniteQuery({
       queryKey: ['infiniteItems'],
       queryFn: ({ pageParam }) =>
-        fetchInfiniteItemsFromApi({
-          pageParam: pageParam as number,
-          cookieString,
-        }),
+              fetchInfiniteItemsFromApi({
+                pageParam: pageParam as number,
+                cookieString,
+              }),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }),
@@ -272,17 +274,17 @@ export default async function Page() {
     queryClient.prefetchQuery({
       queryKey: ['paginatedItems', 1],
       queryFn: () =>
-        fetchPaginatedItems({
-          page: 1,
-          cookieString,
-        }),
+              fetchPaginatedItems({
+                page: 1,
+                cookieString,
+              }),
     }),
   ]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <MainContents />
-    </HydrationBoundary>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <MainContents />
+          </HydrationBoundary>
   );
 }
 ```
@@ -302,13 +304,13 @@ import { ThemeProvider } from 'next-themes';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+          <html lang="ko" suppressHydrationWarning>
+          <body>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {children}
+          </ThemeProvider>
+          </body>
+          </html>
   );
 }
 ```
@@ -334,10 +336,10 @@ export const UserCard: FC<UserCardProps> = ({ userId, className }) => {
   const handleToggle = () => setIsExpanded((p) => !p);
 
   return (
-    <div className={cn('rounded-lg border p-4', className)}>
-      <button onClick={handleToggle}>Toggle</button>
-      {isExpanded && <div>Expanded</div>}
-    </div>
+          <div className={cn('rounded-lg border p-4', className)}>
+            <button onClick={handleToggle}>Toggle</button>
+            {isExpanded && <div>Expanded</div>}
+          </div>
   );
 };
 ```
@@ -349,11 +351,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@/types/user';
 
 export const useUser = (userId: string) =>
-  useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => fetchUser(userId),
-    enabled: Boolean(userId),
-  });
+        useQuery({
+          queryKey: ['user', userId],
+          queryFn: () => fetchUser(userId),
+          enabled: Boolean(userId),
+        });
 
 export const useUpdateUser = () => {
   const qc = useQueryClient();
@@ -451,10 +453,10 @@ if (!form.title) {
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   return (
-    <div>
-      <p>{error.message}</p>
-      <button onClick={reset}>Retry</button>
-    </div>
+          <div>
+            <p>{error.message}</p>
+            <button onClick={reset}>Retry</button>
+          </div>
   );
 }
 ```
