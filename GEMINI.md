@@ -43,11 +43,27 @@
 - **일관성:** 유사한 기능을 수행하는 요소에는 동일한 아이콘을 사용하여 사용자 경험의 일관성을 유지합니다.
 - **접근성:** 아이콘이 단독으로 버튼 역할을 할 경우 `aria-label`을 반드시 제공합니다.
 
-### 5. 상태 관리 (State Management)
+### 5. 이미지 최적화 원칙 (Next.js Image)
+
+- **`next/image` 필수 사용:** 모든 이미지는 표준 `<img>` 태그 대신 Next.js의 `Image` 컴포넌트를 사용하여 자동 최적화(WebP 변환, 리사이징, 지연 로딩)를 적용합니다.
+- **이미지 저장 위치:** 모든 정적 이미지 파일은 `public/images` 디렉토리에 체계적으로 관리합니다.
+- **크기 명시:** 레이아웃 시프트(LCP) 방지를 위해 `width`와 `height`를 반드시 명시하거나, 부모 요소에 맞춰야 할 경우 `fill` 속성과 `object-fit`을 조합하여 사용합니다.
+- **우선순위(Priority):** 페이지 상단에 위치하여 LCP에 직접적인 영향을 주는 이미지는 `priority` 속성을 부여하여 즉시 로드되도록 합니다.
+- **외부 이미지:** 외부 도메인의 이미지를 사용할 경우 `next.config.ts`의 `remotePatterns`에 해당 도메인을 안전하게 등록하여 사용합니다.
+
+### 6. SVG 최적화 및 컴포넌트 활용 (SVGR)
+
+- **SVGR 적용:** `next.config.ts`의 Turbopack 설정을 통해 모든 `.svg` 파일은 React 컴포넌트로 자동 변환됩니다.
+- **아이콘 저장 위치:** 모든 SVG 아이콘 파일은 `src/assets/icons` 디렉토리에 위치시켜 관리합니다.
+- **사용 방식:** `<img>` 태그를 사용하는 대신, SVG 파일을 직접 `import`하여 컴포넌트처럼 사용합니다. (예: `import LogoIcon from '@/assets/icons/logo.svg'`)
+- **스타일링:** SVG 컴포넌트에 `className`을 전달하여 Tailwind CSS로 크기(`w-6 h-6`), 색상(`text-primary`), 회전 등을 간편하게 제어합니다.
+- **최적화:** SVGR은 내부적으로 SVGO를 사용하여 SVG 코드의 불필요한 메타데이터와 공백을 제거하여 번들 크기를 최적화합니다.
+
+### 7. 상태 관리 (State Management)
 
 - **서버 상태:** TanStack Query만 사용합니다. (`useEffect` 내부에서 `fetch` 금지)
 - **전역 UI 상태:** Zustand를 사용합니다.
-- **로컬 상태:** `useState` 또는 `useReducer`를 사용합니다.
+- **로컬 상태:** `useState`를 사용합니다.
 - **로컬 상태 업데이트:** 객체 형태의 상태를 업데이트할 때는 반드시 **함수형 업데이트(`prev`)**와 **전개 연산자(`...`, Spread Operator)**를 사용하여 불변성을 유지합니다.
   - **이유:** 최신 상태 보장(Race Condition 방지) 및 참조값 변경을 통한 정확한 리렌더링 보장.
   - **예시:** `setState(prev => ({ ...prev, [key]: value }))`
@@ -55,6 +71,7 @@
 ### 6. 코드 스타일 (Code Style)
 
 - 함수형 컴포넌트와 Named Export를 사용합니다.
+- **주석 규칙:** 모든 주석(설명, TODO, 복잡한 로직 해설 등)은 **한글**로 작성합니다.
 - **네이밍 규칙**
   - 컴포넌트: `PascalCase`
   - 함수/변수: `camelCase`
@@ -140,8 +157,8 @@ export const createKy = (cookie?: string) => {
   const isServer = typeof window === 'undefined';
   return ky.create({
     prefixUrl: isServer
-            ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
-            : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
+      ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
+      : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
     headers: cookie ? { Cookie: cookie } : undefined, // ssr에서는 쿠키를 직점 담아줘야함 ❤️
     // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
     // ⭐ /ptc 를 설정한 rewrite 가 있기때문 localhost:8000 생으로 쓸려면 include 필요
@@ -263,10 +280,10 @@ export default async function Page() {
     queryClient.prefetchInfiniteQuery({
       queryKey: ['infiniteItems'],
       queryFn: ({ pageParam }) =>
-              fetchInfiniteItemsFromApi({
-                pageParam: pageParam as number,
-                cookieString,
-              }),
+        fetchInfiniteItemsFromApi({
+          pageParam: pageParam as number,
+          cookieString,
+        }),
       initialPageParam: 0,
       getNextPageParam: (lastPage) => lastPage.nextCursor,
     }),
@@ -274,17 +291,17 @@ export default async function Page() {
     queryClient.prefetchQuery({
       queryKey: ['paginatedItems', 1],
       queryFn: () =>
-              fetchPaginatedItems({
-                page: 1,
-                cookieString,
-              }),
+        fetchPaginatedItems({
+          page: 1,
+          cookieString,
+        }),
     }),
   ]);
 
   return (
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <MainContents />
-          </HydrationBoundary>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <MainContents />
+    </HydrationBoundary>
   );
 }
 ```
@@ -304,13 +321,13 @@ import { ThemeProvider } from 'next-themes';
 
 export default function RootLayout({ children }) {
   return (
-          <html lang="ko" suppressHydrationWarning>
-          <body>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-            {children}
-          </ThemeProvider>
-          </body>
-          </html>
+    <html lang="ko" suppressHydrationWarning>
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+          {children}
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
 ```
@@ -336,10 +353,10 @@ export const UserCard: FC<UserCardProps> = ({ userId, className }) => {
   const handleToggle = () => setIsExpanded((p) => !p);
 
   return (
-          <div className={cn('rounded-lg border p-4', className)}>
-            <button onClick={handleToggle}>Toggle</button>
-            {isExpanded && <div>Expanded</div>}
-          </div>
+    <div className={cn('rounded-lg border p-4', className)}>
+      <button onClick={handleToggle}>Toggle</button>
+      {isExpanded && <div>Expanded</div>}
+    </div>
   );
 };
 ```
@@ -351,11 +368,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { User } from '@/types/user';
 
 export const useUser = (userId: string) =>
-        useQuery({
-          queryKey: ['user', userId],
-          queryFn: () => fetchUser(userId),
-          enabled: Boolean(userId),
-        });
+  useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+    enabled: Boolean(userId),
+  });
 
 export const useUpdateUser = () => {
   const qc = useQueryClient();
@@ -453,10 +470,10 @@ if (!form.title) {
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   return (
-          <div>
-            <p>{error.message}</p>
-            <button onClick={reset}>Retry</button>
-          </div>
+    <div>
+      <p>{error.message}</p>
+      <button onClick={reset}>Retry</button>
+    </div>
   );
 }
 ```
