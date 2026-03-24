@@ -11,7 +11,9 @@ import {
   TrendingUp,
   Package,
   Star,
-  Plus
+  Plus,
+  ChevronRight,
+  Filter
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -32,166 +34,172 @@ export const UiTestDashboard: FC<UiTestDashboardProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="theme-market flex flex-col min-h-screen bg-[#fdfcfb] text-[#1a1a1a] selection:bg-[#2d4a43]/10 overflow-x-hidden">
-      {/* --- Header --- */}
-      <header className="sticky top-0 z-[100] bg-[#fdfcfb] border-b border-[#eee]">
-        <div className="max-w-7xl mx-auto px-6 md:px-10 h-16 md:h-20 flex items-center justify-between">
-          <div className="flex items-center gap-12">
-            <h1 className="text-xl md:text-2xl font-serif font-bold tracking-tight">MARKET.</h1>
-            <nav className="hidden md:flex items-center gap-8">
-              <HeaderLink label="Shop All" active />
-              <HeaderLink label="New Arrivals" />
-              <HeaderLink label="Editorial" />
+    <div className="theme-market flex flex-col min-h-screen bg-[#f1f1f1] text-[#111] selection:bg-[#2d4a43]/10 overflow-x-hidden">
+      {/* --- High Density Header --- */}
+      <header className="sticky top-0 z-[110] bg-white border-b border-[#ddd] shadow-sm">
+        <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <h1 className="text-xl font-bold tracking-tighter font-sans">MARKET ENGINE</h1>
+            <nav className="hidden xl:flex items-center gap-6">
+              <HeaderLink label="전체상품" active />
+              <HeaderLink label="베스트" />
+              <HeaderLink label="신상품" />
+              <HeaderLink label="기획전" />
+              <HeaderLink label="이벤트" />
             </nav>
           </div>
           
-          <div className="flex items-center gap-2 md:gap-6">
-            <button className="p-2 hover:text-[#2d4a43] transition-colors"><Search size={20} strokeWidth={1.5} /></button>
-            <button className="p-2 hover:text-[#2d4a43] transition-colors relative">
-              <ShoppingBag size={20} strokeWidth={1.5} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-[#2d4a43] rounded-full" />
+          <div className="flex-1 max-w-xl relative hidden md:block">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+            <input 
+              type="text" 
+              placeholder="찾고 있는 상품이나 브랜드를 검색해 보세요" 
+              className="w-full bg-[#f5f5f5] py-2 pl-10 pr-4 text-xs rounded-sm focus:outline-none focus:ring-1 focus:ring-black/10"
+            />
+          </div>
+
+          <div className="flex items-center gap-3 md:gap-5">
+            <button className="p-1.5 md:hidden"><Search size={20} /></button>
+            <button className="flex flex-col items-center gap-0.5 group">
+              <ShoppingBag size={20} strokeWidth={2} />
+              <span className="text-[10px] font-bold text-gray-500 group-hover:text-black">장바구니</span>
             </button>
-            <div className="hidden md:block h-4 w-px bg-[#eee]" />
-            
-            {/* Desktop Profile */}
-            <div className="hidden md:flex items-center gap-3 group cursor-pointer pl-2">
-              <span className="text-sm font-semibold">{user.name}</span>
-              <div className="w-8 h-8 rounded-full bg-[#f3f1ee] flex items-center justify-center border border-[#e5e1dc] overflow-hidden">
-                <User size={16} strokeWidth={1.5} />
+            <div className="h-8 w-px bg-[#eee]" />
+            <div className="flex items-center gap-2 cursor-pointer">
+              <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                <User size={16} />
+              </div>
+              <div className="hidden sm:block leading-none">
+                <p className="text-[11px] font-bold">{user.name}</p>
+                <p className="text-[9px] text-gray-400 mt-0.5">Lv. 멤버십</p>
               </div>
             </div>
-
-            {/* Mobile Menu Toggle */}
-            <button 
-              onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden p-2 hover:bg-[#f3f1ee] transition-colors rounded-full"
-            >
-              <Menu size={24} />
+            <button onClick={() => setIsMobileMenuOpen(true)} className="xl:hidden p-1.5 bg-black text-white rounded-sm">
+              <Menu size={18} />
             </button>
           </div>
-        </div>
-
-        {/* --- Mobile Full-Screen Menu: Absolute Solid Background --- */}
-        <div className={cn(
-          "fixed inset-0 bg-[#fdfcfb] z-[200] transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] md:hidden flex flex-col",
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}>
-          {/* Menu Header (Fixed at Top) */}
-          <div className="h-16 flex items-center justify-between px-6 border-b border-[#eee] bg-[#fdfcfb]">
-            <h1 className="text-xl font-serif font-bold text-[#1a1a1a]">MARKET.</h1>
-            <button 
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="p-2 hover:bg-[#f3f1ee] transition-colors rounded-full"
-            >
-              <X size={24} className="text-[#1a1a1a]" />
-            </button>
-          </div>
-
-          {/* Vertical Menu Items (No Scroll, Clear Hierarchy) */}
-          <nav className="flex-1 flex flex-col p-10 gap-10 bg-[#fdfcfb]">
-            <MobileNavLink label="Shop All" active />
-            <MobileNavLink label="New Arrivals" />
-            <MobileNavLink label="Collections" />
-            <MobileNavLink label="Editorial" />
-            <MobileNavLink label="My Account" />
-          </nav>
         </div>
       </header>
 
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-12 md:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-            <div className="space-y-6 md:space-y-10 animate-fade-up order-last lg:order-first">
-              <p className="text-[10px] md:text-[12px] font-bold uppercase tracking-[0.3em] text-[#2d4a43]">Insights for {user.name}</p>
-              <h2 className="text-4xl sm:text-5xl md:text-7xl font-serif leading-[1.1] tracking-tight break-keep text-[#1a1a1a]">
-                Curated <br className="hidden sm:block" />
-                Market <span className="italic font-normal">Intelligence</span>
+      <main className="flex-1 max-w-[1600px] mx-auto w-full p-4 md:p-6 space-y-6">
+        {/* --- Dynamic Banner (Compact Hero) --- */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <div className="lg:col-span-2 bg-[#2d4a43] rounded-sm p-8 md:p-12 text-white flex flex-col justify-center relative overflow-hidden group">
+            <div className="relative z-10 space-y-4">
+              <span className="bg-white/20 px-2 py-1 text-[10px] font-bold tracking-widest rounded-sm uppercase">Now Trending</span>
+              <h2 className="text-3xl md:text-5xl font-sans font-black leading-tight tracking-tighter">
+                Spring <span className="text-[#a8b5a5]">Intelligence</span> <br />
+                Season Off 40%
               </h2>
-              <p className="text-base md:text-lg text-[#444] leading-relaxed max-w-xl">
-                당신만을 위해 엄선된 마켓 트렌드와 쇼핑 인사이트를 확인하세요. 
-              </p>
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-                <Button 
-                  onClick={() => setIsSuccessModalOpen(true)}
-                  className="bg-[#2d4a43] hover:bg-[#1e332c] text-white px-8 h-14 rounded-none font-bold tracking-wide transition-all"
-                >
-                  Explore Trends <ArrowRight className="ml-2" size={18} />
-                </Button>
-                <Button variant="ghost" className="h-14 px-8 rounded-none border border-[#2d4a43] font-bold hover:bg-[#2d4a43]/5">
-                  View Orders
-                </Button>
+              <Button 
+                onClick={() => setIsSuccessModalOpen(true)}
+                className="bg-white text-[#2d4a43] hover:bg-gray-100 h-10 px-6 rounded-sm font-bold text-xs"
+              >
+                쿠폰 받기
+              </Button>
+            </div>
+            <ShoppingBag className="absolute right-[-20px] bottom-[-20px] w-64 h-64 text-white/5 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+          </div>
+          <div className="bg-white rounded-sm p-6 border border-gray-200 flex flex-col justify-between">
+            <div>
+              <h3 className="text-sm font-bold mb-1">나의 쇼핑 리포트</h3>
+              <p className="text-xs text-gray-400 leading-tight">최근 30일간의 구매 패턴을 분석했습니다.</p>
+            </div>
+            <div className="space-y-3 my-6">
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">배송 중인 상품</span>
+                <span className="font-bold">3개</span>
               </div>
+              <div className="flex justify-between text-xs">
+                <span className="text-gray-500">적립 예정 포인트</span>
+                <span className="font-bold text-blue-600">12,400P</span>
+              </div>
+            </div>
+            <Button variant="outline" className="w-full h-9 rounded-sm text-xs font-bold border-gray-300">
+              상세보기
+            </Button>
+          </div>
+        </section>
+
+        {/* --- High Density Stats Grid --- */}
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <CompactStatItem label="전체 주문" value="48" trend="+2" />
+          <CompactStatItem label="취소/반품" value="1" trend="-1" color="red" />
+          <CompactStatItem label="리뷰 작성" value="12" trend="새로운 리뷰" color="blue" />
+          <CompactStatItem label="찜한 상품" value="124" trend="품절임박 3" />
+          <CompactStatItem label="쿠폰" value="5" trend="오늘만료 1" color="orange" />
+          <CompactStatItem label="장바구니" value="8" trend="+3" />
+        </section>
+
+        {/* --- Main Content Grid --- */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+          <div className="xl:col-span-8 space-y-4">
+            <div className="bg-white rounded-sm border border-gray-200">
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h3 className="text-sm font-bold">최근 활동 내역</h3>
+                <button className="text-[11px] text-gray-400 font-bold hover:text-black">더보기</button>
+              </div>
+              <div className="divide-y divide-gray-50">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors group cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 bg-gray-50 rounded-sm flex items-center justify-center text-gray-400 group-hover:bg-[#2d4a43] group-hover:text-white transition-colors">
+                        <Package size={14} />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-800">주문번호 20260324-000{i} 배송이 시작되었습니다.</p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">CJ대한통운 (운송장번호: 1234567890)</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-medium text-gray-300">12:45</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="xl:col-span-4 space-y-4">
+            <div className="bg-black rounded-sm p-5 text-white flex items-center justify-between group cursor-pointer">
+              <div>
+                <h4 className="text-xs font-bold mb-1">멤버십 가입하고 혜택 받기</h4>
+                <p className="text-[10px] text-gray-400">첫 구매 시 10,000원 즉시 할인</p>
+              </div>
+              <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </div>
             
-            <div className="relative h-[300px] sm:h-[400px] lg:h-[550px] bg-[#f3f1ee] overflow-hidden order-first lg:order-last">
-              <div className="absolute inset-0 flex items-center justify-center text-[#e5e1dc]">
-                <ShoppingBag className="w-[120px] h-[120px] md:w-[200px] md:h-[200px]" strokeWidth={0.5} opacity={0.3} />
+            <div className="bg-white rounded-sm border border-gray-200 p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold">인기 카테고리</h4>
+                <Filter size={14} className="text-gray-400" />
               </div>
-              <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 p-6 md:p-8 lg:p-10 bg-white shadow-sm border border-white/20">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#2d4a43] mb-1">Featured Item</p>
-                <p className="font-serif text-xl lg:text-2xl italic leading-none whitespace-nowrap text-[#1a1a1a]">The Sage Collection</p>
+              <div className="flex flex-wrap gap-2">
+                {['아우터', '팬츠', '상의', '액세서리', '슈즈', '라이프스타일', '테크'].map(tag => (
+                  <span key={tag} className="px-3 py-1.5 bg-gray-100 text-[10px] font-bold text-gray-600 rounded-full hover:bg-black hover:text-white cursor-pointer transition-colors">
+                    #{tag}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Stats Grid */}
-        <section className="bg-white border-y border-[#eee] py-12 md:py-20">
-          <div className="max-w-7xl mx-auto px-6 md:px-10">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-20">
-              <StatItem label="Active Users" value="1.2k" trend="+12%" />
-              <StatItem label="Conversion" value="3.4%" trend="+0.5%" />
-              <StatItem label="Avg. Order" value="$124" trend="Stable" />
-              <StatItem label="CS Score" value="4.9/5" trend="+0.1" />
-            </div>
-          </div>
-        </section>
-
-        {/* List Section */}
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-16 md:py-24 space-y-12 md:space-y-20">
-          <div className="flex items-end justify-between border-b border-[#eee] pb-6 md:pb-10">
-            <h3 className="text-2xl md:text-4xl font-serif text-[#1a1a1a]">Recent Intelligence</h3>
-            <button className="text-xs md:text-sm font-bold border-b-2 border-[#2d4a43] pb-1">View All</button>
-          </div>
-          
-          <div className="grid gap-10 md:gap-14">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="group flex flex-col md:flex-row md:items-center justify-between gap-6 pb-10 md:pb-14 border-b border-[#f3f1ee] last:border-0 hover:translate-x-1 transition-transform duration-500">
-                <div className="flex items-center gap-6 md:gap-10">
-                  <div className="w-14 h-14 md:w-20 md:h-20 bg-[#f3f1ee] flex items-center justify-center shrink-0 group-hover:bg-[#2d4a43] group-hover:text-white transition-colors duration-500">
-                    {i === 1 ? (
-                      <TrendingUp className="w-6 h-6 md:w-7 md:h-7" strokeWidth={1.5} />
-                    ) : i === 2 ? (
-                      <Package className="w-6 h-6 md:w-7 md:h-7" strokeWidth={1.5} />
-                    ) : (
-                      <Star className="w-6 h-6 md:w-7 md:h-7" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#999] mb-1">Market Report 0{i}</p>
-                    <p className="text-lg md:text-2xl font-serif leading-tight truncate md:whitespace-normal text-[#1a1a1a]">2026 Spring Summer Trend Analysis</p>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between md:justify-end gap-16 mt-2 md:mt-0">
-                  <div className="md:text-right shrink-0">
-                    <p className="text-[10px] font-bold text-[#999] mb-1">Status</p>
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#1a1a1a]">Processed</p>
-                  </div>
-                  <ArrowRight className="text-[#ccc] md:text-[#eee] group-hover:text-[#2d4a43] transition-colors duration-500" size={28} strokeWidth={1} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        </div>
       </main>
 
-      <footer className="max-w-7xl mx-auto w-full px-6 md:px-10 py-12 md:py-16 border-t border-[#eee] flex flex-col md:flex-row justify-between items-center gap-10 text-[#999]">
-        <p className="text-[10px] font-bold tracking-widest uppercase">© 2026 Market Intelligence Co.</p>
-        <div className="flex gap-8 text-[10px] font-bold tracking-widest uppercase">
-          <a href="#" className="hover:text-[#1a1a1a]">Privacy</a>
-          <a href="#" className="hover:text-[#1a1a1a]">Terms</a>
-          <a href="#" className="hover:text-[#1a1a1a]">Support</a>
+      <footer className="bg-white border-t border-gray-200 mt-12 py-10">
+        <div className="max-w-[1600px] mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-[10px] font-bold text-gray-400">
+          <div className="col-span-2 space-y-4">
+            <h1 className="text-lg font-bold tracking-tighter text-black">MARKET ENGINE</h1>
+            <p className="leading-relaxed max-w-sm">
+              (주)마켓엔진 | 대표이사 홍길동 | 서울특별시 강남구 테헤란로 123
+            </p>
+          </div>
+          <div className="space-y-3">
+            <h4 className="text-black">고객센터</h4>
+            <p className="text-lg font-black tracking-tight text-black">1588-0000</p>
+          </div>
+          <div className="flex flex-col gap-2">
+            <a href="#">이용약관</a>
+            <a href="#">개인정보처리방침</a>
+          </div>
         </div>
       </footer>
 
@@ -202,28 +210,28 @@ export const UiTestDashboard: FC<UiTestDashboardProps> = ({
 
 const HeaderLink = ({ label, active = false }: { label: string; active?: boolean }) => (
   <a href="#" className={cn(
-    "text-xs font-bold uppercase tracking-[0.2em] transition-all",
-    active ? "text-[#1a1a1a] border-b-2 border-[#2d4a43] pb-1" : "text-[#999] hover:text-[#1a1a1a]"
+    "text-[13px] font-bold transition-all",
+    active ? "text-black border-b-2 border-black pb-1" : "text-gray-400 hover:text-black"
   )}>
     {label}
   </a>
 );
 
-const MobileNavLink = ({ label, active = false }: { label: string; active?: boolean }) => (
-  <a href="#" className={cn(
-    "text-4xl font-serif transition-all block",
-    active ? "text-[#2d4a43] underline underline-offset-8 decoration-1" : "text-[#1a1a1a]"
-  )}>
-    {label}
-  </a>
-);
+const CompactStatItem = ({ label, value, trend, color = 'default' }: { label: string; value: string; trend: string; color?: string }) => {
+  const colorMap: any = {
+    red: "text-red-500",
+    blue: "text-blue-600",
+    orange: "text-orange-500",
+    default: "text-gray-400"
+  };
 
-const StatItem = ({ label, value, trend }: { label: string; value: string; trend: string }) => (
-  <div className="space-y-4">
-    <p className="text-[10px] font-bold uppercase tracking-widest text-[#999]">{label}</p>
-    <div className="flex items-baseline gap-3">
-      <h4 className="text-4xl md:text-5xl font-serif text-[#1a1a1a]">{value}</h4>
-      <span className="text-[9px] font-bold text-[#2d4a43] bg-[#2d4a43]/5 px-1.5 py-0.5 rounded-full">{trend}</span>
+  return (
+    <div className="bg-white p-4 rounded-sm border border-gray-200 hover:border-black transition-colors cursor-default">
+      <p className="text-[10px] font-bold text-gray-400 mb-1">{label}</p>
+      <div className="flex items-baseline justify-between">
+        <h4 className="text-xl font-bold tracking-tight">{value}</h4>
+        <span className={cn("text-[9px] font-bold", colorMap[color])}>{trend}</span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
