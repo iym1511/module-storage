@@ -1,54 +1,32 @@
 import React from 'react';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import MainContents from '@/app/(afterLogin)/home/_components/MainContents';
-import { apiTest2, UserType } from '@/fetchData/fetch-get';
-import { fetchInfiniteItemsFromApi2 } from '@/fetchData/fetch-infinite';
-import { fetchPaginatedItems2 } from '@/fetchData/fetch-pagination';
+import { UserType } from '@/fetchData/fetch-get';
 import { cookies } from 'next/headers';
+import { queryKeys } from '@/lib/query-keys';
+import { FetchInfiniteResult } from '@/fetchData/fetch-infinite';
 
 async function Page() {
     const queryClient = new QueryClient();
 
-    // 이렇게 프리패칭 하면 서버에서 미리 데이터를 가져다줘서 로딩안뜨고
-    // 바로 데이터가 나와서 개빠르다.
-
-    // ✅ Next 서버가 실행될때 브라우저에서 쿠키값을 전송해줘서 사용가능
-    // 💡 next.config에서 rewrites 로 설정한 경로를 api url에 사용해서 csr 에서 쿠키가 헤더에 들어간다
     const cookieStore = await cookies();
-
-    // ssr에서 쿠키 전송 시 문자열로 반환
     const cookieString = cookieStore.toString();
-
-    // next api 를 사용하지 않을 때 사용⭐
-    // const accessToken = cookieStore.get('access_token')?.value;
 
     // 모든 Query를 병렬로 Prefetch
     await Promise.all([
         // 유저 리스트 호출
-        queryClient.prefetchQuery({
-            queryKey: ['users'],
-            queryFn: () => apiTest2(cookieString),
-        }),
+        queryClient.prefetchQuery(queryKeys.user.list(cookieString)),
+
         // 인피니티 스크롤
         queryClient.prefetchInfiniteQuery({
-            queryKey: ['infiniteItems'],
-            queryFn: ({ pageParam }) =>
-                fetchInfiniteItemsFromApi2({
-                    pageParam: pageParam as number,
-                    cookieString,
-                }),
+            ...queryKeys.home.infinite(cookieString),
             initialPageParam: 0,
-            getNextPageParam: (lastPage) => lastPage.nextCursor,
+            // lastPage를 일단 받은 다음, (lastPage as 타입) 형태로 꺼내 쓰기
+            getNextPageParam: (lastPage) => (lastPage as FetchInfiniteResult).nextCursor,
         }),
+
         // 페이지 네이션
-        queryClient.prefetchQuery({
-            queryKey: ['paginatedItems', 1],
-            queryFn: () =>
-                fetchPaginatedItems2({
-                    page: 1,
-                    cookieString,
-                }),
-        }),
+        queryClient.prefetchQuery(queryKeys.home.paginated(1, cookieString)),
     ]);
 
     const dehydratedState = dehydrate(queryClient);

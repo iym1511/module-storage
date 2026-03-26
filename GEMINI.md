@@ -68,7 +68,7 @@
   - **이유:** 최신 상태 보장(Race Condition 방지) 및 참조값 변경을 통한 정확한 리렌더링 보장.
   - **예시:** `setState(prev => ({ ...prev, [key]: value }))`
 
-### 6. 코드 스타일 (Code Style)
+### 8. 코드 스타일 (Code Style)
 
 - 함수형 컴포넌트와 Named Export를 사용합니다.
 - **주석 규칙:** 모든 주석(설명, TODO, 복잡한 로직 해설 등)은 **한글**로 작성합니다.
@@ -79,7 +79,7 @@
   - 타입/인터페이스: `PascalCase`
 - `any` 타입 사용을 금지합니다.
 
-### 7. 타입 정의 (Type Organization)
+### 9. 타입 정의 (Type Organization)
 
 ```ts
 // types/user.ts
@@ -95,7 +95,7 @@ export interface UserResponse {
 }
 ```
 
-### 8. 환경 변수 (Environment Variables)
+### 10. 환경 변수 (Environment Variables)
 
 ```bash
 NEXT_PUBLIC_API_URL=https://api.example.com
@@ -103,7 +103,7 @@ DATABASE_URL=postgresql://...
 API_SECRET_KEY=...
 ```
 
-### 9. 임포트 순서 (Import Order)
+### 11. 임포트 순서 (Import Order)
 
 ```ts
 // 1. React / Next
@@ -157,8 +157,8 @@ export const createKy = (cookie?: string) => {
   const isServer = typeof window === 'undefined';
   return ky.create({
     prefixUrl: isServer
-      ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
-      : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
+            ? 'http://localhost:8000/' // ⚠️ next api 가 아닐땐 8000 서버주소로 ⭐ 그리고 애초에 ssr컴포넌트에서 /ptc 즉 rewrite는 읽지못함
+            : '/ptc', // ⚠️ 백엔드로 바로 통신할경우 next.config의 /ptc 로 연결
     headers: cookie ? { Cookie: cookie } : undefined, // ssr에서는 쿠키를 직점 담아줘야함 ❤️
     // Next가 내부 프록시로 API 연결 중이라서 이거없어도 same-origin이라 쿠키 전달가능
     // ⭐ /ptc 를 설정한 rewrite 가 있기때문 localhost:8000 생으로 쓸려면 include 필요
@@ -191,125 +191,173 @@ export const createKy = (cookie?: string) => {
 };
 ```
 
-### 4. 미들웨어 전략 (Middleware Strategy)
-
-- **역할:** 모든 페이지 및 API 요청에 대해 인증 상태를 체크하고 적절한 페이지로 리다이렉트합니다.
-- **검증 방식:** Edge Runtime에서 실행되므로 가벼운 `jose` 라이브러리를 사용하여 JWT를 검증합니다.
-- **리다이렉트 로직:**
-  - 토큰이 전혀 없는 경우: `/login`으로 리다이렉트.
-  - 액세스 토큰 만료 + 리프레시 토큰 존재: `/api/auth/refresh`로 리다이렉트하여 토큰 갱신 유도.
-
-```ts
-import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify } from 'jose';
-
-export async function middleware(request: NextRequest) {
-  const accessToken = request.cookies.get('access_token')?.value;
-  const refreshToken = request.cookies.get('refresh_token')?.value;
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
-
-  if (request.nextUrl.pathname === '/login') {
-    return NextResponse.next();
-  }
-
-  if (!accessToken && !refreshToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-
-  if (accessToken) {
-    try {
-      await jwtVerify(accessToken, secret);
-      return NextResponse.next();
-    } catch {
-      if (refreshToken) {
-        const url = new URL('/api/auth/refresh', request.url);
-        url.searchParams.set('redirect', request.nextUrl.pathname);
-        return NextResponse.redirect(url);
-      }
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
-
-  if (!accessToken && refreshToken) {
-    const url = new URL('api/auth/refresh', request.url);
-    url.searchParams.set('redirect', request.nextUrl.pathname);
-    return NextResponse.redirect(url);
-  }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ['/', '/login', '/home'],
-};
-```
-
-### 8. 테마 관리 (Theme Management)
-
-- **라이브러리:** `next-themes`를 사용하여 전역 테마 상태를 관리합니다.
-- **구성:** `RootLayout`에 `ThemeProvider`를 적용하고, `attribute="class"`를 통해 다크모드를 제어합니다.
-- **깜빡임 방지:** `suppressHydrationWarning` 속성을 사용하여 SSR과 CSR 간의 테마 불일치 에러를 방지합니다.
-- **Tailwind v4 연동:** `globals.css`에 `@custom-variant dark`를 정의하여 클래스 기반 다크모드가 정상 작동하도록 설정합니다.
-
 ---
 
 ## 주요 패턴 (Patterns)
 
-### SSR 프리페칭 + 하이드레이션 (App Router 최상위 페이지)
+### TanStack Query (query-key-factory 중앙 관리 패턴)
+
+- **중앙 집중 관리:** 모든 쿼리 키와 페칭 함수(`queryFn`)는 `src/lib/query-keys.ts`에서 관리합니다.
+
+```ts
+// src/lib/query-keys.ts (실제 구현 예시)
+export const queryKeys = createQueryKeyStore({
+  board: {
+    all: (cookie?: string) => ({
+      queryKey: [] as any,
+      queryFn: () => fetchBoards(cookie),
+    }),
+  },
+  home: {
+    infinite: (cookie?: string) => ({
+      queryKey: [] as any,
+      // 💡 context 객체의 타입을 명시하여 pageParam을 number로 인식하게 함
+      queryFn: ({ pageParam }: { pageParam: number }) =>
+              fetchInfiniteItemsFromApi2({
+                pageParam,
+                cookieString: cookie,
+              }),
+    }),
+  },
+});
+```
+
+### CSR 데이터 조회 (Client Component)
+
+#### 1. 일반 리스트 조회 (`useQuery`)
+- **패턴:** `queryKeys.domain.action()`을 호출하여 `queryKey`와 `queryFn`을 한 번에 전달합니다.
 
 ```tsx
+// src/components/board/BoardComponent.tsx (실제 구현 예시)
+'use client';
+
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
+
+export default function BoardComponent() {
+  const queryClient = useQueryClient();
+
+  // 1. 데이터 조회 (Read) - 키와 함수를 통합하여 호출
+  const { data: boards } = useQuery(queryKeys.board.all());
+
+  // 2. 캐시 무효화 (Invalidate)
+  const createMutation = useMutation({
+    mutationFn: createBoard,
+    onSuccess: () => {
+      queryClient.invalidateQueries(queryKeys.board.all());
+    },
+  });
+  // ...
+}
+```
+
+#### 2. 무한 스크롤 조회 (`useInfiniteQuery`)
+- **패턴:** `useInfiniteQuery`에 5가지 제네릭 타입을 명시하고 `...queryKeys` 스프레드를 사용합니다.
+
+```tsx
+// src/app/(afterLogin)/home/_components/InfiniteScrollExample.tsx (실제 구현 예시)
+'use client';
+
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
+import type { InfiniteData } from '@tanstack/query-core';
+import type { FetchInfiniteResult } from '@/fetchData/fetch-infinite';
+
+export default function InfiniteScrollExample() {
+  const { data, fetchNextPage } = useInfiniteQuery<
+          FetchInfiniteResult,
+          Error,
+          InfiniteData<FetchInfiniteResult>,
+          any,
+          number
+  >({
+    ...queryKeys.home.infinite(token),
+    initialPageParam: 0,
+    getNextPageParam: ({ nextCursor }) => nextCursor ?? undefined,
+  });
+  // ...
+}
+```
+
+#### 3. 무한 스크롤 인터랙션 (`useInfiniteScroll` 훅)
+- **패턴:** `react-intersection-observer`를 래핑한 `useInfiniteScroll` 훅을 사용하여 하단 감지 및 다음 페이지 로드를 처리합니다.
+
+```tsx
+// src/hooks/use-infinite-scroll.ts
+import { useEffect } from 'react';
+import { IntersectionOptions, useInView } from 'react-intersection-observer';
+
+interface UseInfiniteScrollOptions extends IntersectionOptions {
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  fetchNextPage: () => void;
+}
+
+export function useInfiniteScroll({ fetchNextPage, ...options }: UseInfiniteScrollOptions) {
+  const { ref, inView } = useInView({
+    threshold: 0.1,
+    ...options,
+  });
+
+  useEffect(() => {
+    if (inView) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage]);
+
+  return { ref };
+}
+```
+
+**사용 예시:**
+```tsx
+const { ref } = useInfiniteScroll({
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+});
+
+return (
+  <div>
+    {/* 리스트 렌더링... */}
+    <div ref={ref} className="h-10" /> {/* 감지용 요소 */}
+  </div>
+);
+```
+
+### SSR 프리페칭 (Server Component)
+
+```tsx
+// src/app/(afterLogin)/home/page.tsx (실제 구현 예시)
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
-import MainContents from './_components/MainContents';
-import { apiTest2 } from '@/fetchData/fetch-get';
-import { fetchInfiniteItemsFromApi } from '@/fetchData/fetch-infinite';
-import { fetchPaginatedItems } from '@/fetchData/fetch-pagination';
+import { queryKeys } from '@/lib/query-keys';
 
-export default async function Page() {
+async function Page() {
   const queryClient = new QueryClient();
-
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieString = cookieStore.toString();
 
+  // 모든 Query를 병렬로 Prefetch
   await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: ['users'],
-      queryFn: () => apiTest2(cookieString),
-    }),
+    // 일반 조회 프리페칭
+    queryClient.prefetchQuery(queryKeys.user.list(cookieString)),
 
+    // 무한 스크롤 프리페칭 (수동 캐스팅 활용)
     queryClient.prefetchInfiniteQuery({
-      queryKey: ['infiniteItems'],
-      queryFn: ({ pageParam }) =>
-        fetchInfiniteItemsFromApi({
-          pageParam: pageParam as number,
-          cookieString,
-        }),
+      ...queryKeys.home.infinite(cookieString),
       initialPageParam: 0,
-      getNextPageParam: (lastPage) => lastPage.nextCursor,
-    }),
-
-    queryClient.prefetchQuery({
-      queryKey: ['paginatedItems', 1],
-      queryFn: () =>
-        fetchPaginatedItems({
-          page: 1,
-          cookieString,
-        }),
+      getNextPageParam: (lastPage) => (lastPage as FetchInfiniteResult).nextCursor,
     }),
   ]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <MainContents />
-    </HydrationBoundary>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <MainContents />
+          </HydrationBoundary>
   );
 }
 ```
-
-- **Server Component에서만 실행**
-- `useQuery`와 **queryKey/queryFn 완전히 동일**해야 함
-- 클라이언트에서는 로딩 없이 즉시 캐시 사용
-- 쿠키/헤더 필요한 API는 여기서 처리
 
 ---
 
@@ -321,70 +369,18 @@ import { ThemeProvider } from 'next-themes';
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+          <html lang="ko" suppressHydrationWarning>
+          <body>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            {children}
+          </ThemeProvider>
+          </body>
+          </html>
   );
 }
 ```
 
 ---
-
-### 컴포넌트 템플릿 (Component Template)
-
-```tsx
-'use client';
-
-import { useState, type FC } from 'react';
-import { cn } from '@/lib/utils';
-
-interface UserCardProps {
-  userId: string;
-  className?: string;
-}
-
-export const UserCard: FC<UserCardProps> = ({ userId, className }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  const handleToggle = () => setIsExpanded((p) => !p);
-
-  return (
-    <div className={cn('rounded-lg border p-4', className)}>
-      <button onClick={handleToggle}>Toggle</button>
-      {isExpanded && <div>Expanded</div>}
-    </div>
-  );
-};
-```
-
-### TanStack Query
-
-```ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { User } from '@/types/user';
-
-export const useUser = (userId: string) =>
-  useQuery({
-    queryKey: ['user', userId],
-    queryFn: () => fetchUser(userId),
-    enabled: Boolean(userId),
-  });
-
-export const useUpdateUser = () => {
-  const qc = useQueryClient();
-
-  return useMutation({
-    mutationFn: updateUser,
-    onSuccess: (data: User) => {
-      qc.invalidateQueries({ queryKey: ['user', data.id] });
-    },
-  });
-};
-```
 
 ### Zustand Store
 
@@ -402,38 +398,6 @@ export const useSidebarStore = create<SidebarState>((set) => ({
 }));
 ```
 
-### 인피니티 스크롤 (Infinite Scroll)
-
-- **라이브러리:** `react-intersection-observer`를 사용합니다.
-- **구현 방식:** 직접적인 `IntersectionObserver` 대신 `hooks/use-infinite-scroll.ts` 커스텀 훅을 사용하여 재사용 가능한 형태로 구현합니다.
-
-```tsx
-// 사용 예시
-import { useInfiniteScroll } from '@/hooks/use-infinite-scroll';
-
-const { ref } = useInfiniteScroll({
-  hasNextPage,
-  isFetchingNextPage,
-  fetchNextPage,
-});
-
-// 하단 트리거 엘리먼트에 ref 연결
-return <div ref={ref}>Loading More...</div>;
-```
-
-### Form (RHF + Zod)
-
-```ts
-import { z } from 'zod';
-
-export const userSchema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-});
-
-export type UserFormData = z.infer<typeof userSchema>;
-```
-
 ---
 
 ## 로딩 / 에러 처리 (Error / Loading)
@@ -441,12 +405,6 @@ export type UserFormData = z.infer<typeof userSchema>;
 ### 1. 전역 에러 메시지 관리
 
 - **에러 메시지 중앙화:** 하드코딩된 에러 메시지는 피하고, `src/lib/errors.ts`의 `ERROR_MESSAGES` 상수를 사용하여 중앙 집중식으로 관리합니다.
-- **유틸리티 함수 활용:** API 호출 등 공통적인 작업의 에러 처리는 `formatErrorMessage` 함수를 활용하여 일관된 메시지 형식을 유지합니다.
-- **네임스페이스 구조:**
-  - `COMMON`: 애플리케이션 전반에 걸친 공통 에러 (네트워크, 알 수 없는 에러 등)
-  - `API`: API 요청 실패와 관련된 에러 (저장, 삭제, 처리 등)
-  - `AUTH`: 인증 과정에서 발생하는 에러 (로그인 실패 등)
-  - `VALIDATION`: 폼 입력값 검증과 관련된 에러
 
 ```ts
 // 사용 예시
@@ -455,11 +413,6 @@ import { ERROR_MESSAGES, formatErrorMessage } from '@/lib/errors';
 // API 에러 처리
 if (!res.success) {
   alert(formatErrorMessage('save', res.message));
-}
-
-// 폼 검증
-if (!form.title) {
-  setErr(ERROR_MESSAGES.VALIDATION.TITLE_REQUIRED);
 }
 ```
 
@@ -470,31 +423,12 @@ if (!form.title) {
 
 export default function Error({ error, reset }: { error: Error; reset: () => void }) {
   return (
-    <div>
-      <p>{error.message}</p>
-      <button onClick={reset}>Retry</button>
-    </div>
+          <div>
+            <p>{error.message}</p>
+            <button onClick={reset}>Retry</button>
+          </div>
   );
 }
-```
-
-### 3. 로딩 컴포넌트
-
-```tsx
-export default function Loading() {
-  return <div>Loading...</div>;
-}
-```
-
----
-
-## 유틸리티 (Utilities)
-
-```ts
-import { clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
-
-export const cn = (...inputs: Parameters<typeof clsx>) => twMerge(clsx(inputs));
 ```
 
 ---

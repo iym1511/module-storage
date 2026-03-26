@@ -3,7 +3,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { apiTest2, UserType } from '../../../../fetchData/fetch-get';
+import { UserType } from '../../../../fetchData/fetch-get';
+import { queryKeys } from '@/lib/query-keys';
 
 interface UserListProps {
     initialData?: UserType[];
@@ -11,9 +12,7 @@ interface UserListProps {
 
 export default function UserList({ initialData }: UserListProps) {
     const { data: users, isLoading } = useQuery({
-        queryKey: ['users'],
-        // queryFn: apiTest,
-        queryFn: () => apiTest2(),
+        ...queryKeys.user.list(),
         initialData: initialData, // 초기 데이터 활용
         select: (data) =>
             data.map((user) => ({

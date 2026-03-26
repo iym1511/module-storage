@@ -1,48 +1,48 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 // 무한스크롤 감지를 위해 react-intersection-observer 라이브러리 필요
-import { useInView } from 'react-intersection-observer';
-import { fetchInfiniteItemsFromApi2 } from '@/fetchData/fetch-infinite';
 import { Card } from '@/components/ui/ui-Button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getCookie } from 'cookies-next';
+import { queryKeys } from '@/lib/query-keys';
+import { FetchInfiniteResult } from '@/fetchData/fetch-infinite';
+import { InfiniteData } from '@tanstack/query-core';
+import { useInfiniteScroll } from '@/hooks/use-infinite-scroll';
 
 export default function InfiniteScrollExample() {
-    const { ref, inView } = useInView();
-    const token = getCookie('access_token');
-    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery({
-        queryKey: ['infiniteItems'],
-        queryFn: ({ pageParam }) =>
-            fetchInfiniteItemsFromApi2({
-                pageParam: pageParam as number,
-                cookieString: token as string,
-            }),
-        // queryFn: ({ pageParam }) => fetchInfiniteItemsFromApi2({ pageParam: pageParam as number }),
+    const token = getCookie('access_token') as string | undefined;
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery<
+        FetchInfiniteResult, // 1. queryFn이 리턴하는 순수 데이터 타입
+        Error, // 2. 에러 발생 시 타입
+        InfiniteData<FetchInfiniteResult>, // 3. 전체 데이터 구조 (InfiniteData로 감싸야 함!)
+        any, // 4. queryKey의 타입
+        number // 5. pageParam의 타입 (우리는 0, 1, 2... 숫자를 쓰므로)
+    >({
+        ...queryKeys.home.infinite(token),
         initialPageParam: 0,
-        getNextPageParam: (lastPage) => {
+        getNextPageParam: ({ nextCursor }) => {
             // nextCursor가 없으면 즉시 undefined 반환 (추가 로직 실행 안 함)
-            if (!lastPage.nextCursor) {
+            if (!nextCursor) {
                 return undefined;
             }
-            // 알아서 배열의 마지막 index 반환'lastPage 데이터 확인:', lastPage);
-            return lastPage.nextCursor;
+            // 알아서 배열의 마지막 index 반환
+            return nextCursor;
         },
     });
 
-    useEffect(() => {
-        if (inView && hasNextPage && !isFetchingNextPage) {
-            fetchNextPage();
-        }
-    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+    const { ref: loadMoreRef } = useInfiniteScroll({
+        fetchNextPage,
+    });
+
     return (
         <div className="p-4 border rounded-xl bg-white dark:bg-slate-900 shadow-lg max-w-md mx-auto mt-8">
             <h2 className="text-xl font-bold mb-4 px-2">내부 스크롤 무한 스크롤</h2>
 
             {/* 👇 스크롤이 생기는 컨테이너 박스 */}
             <div className="h-[400px] overflow-y-auto pr-2 space-y-4">
-                {status === 'pending' ? (
+                {status !== 'success' && status !== 'error' ? (
                     <div className="space-y-4">
                         {Array.from({ length: 3 }).map((_, i) => (
                             <Skeleton key={i} className="h-24 w-full rounded-lg" />
@@ -72,7 +72,7 @@ export default function InfiniteScrollExample() {
 
                         {/* 👇 관찰 대상 (박스 내부 가장 하단에 위치) + (리랜더링 방지) */}
                         <div
-                            ref={hasNextPage ? ref : undefined}
+                            ref={hasNextPage ? loadMoreRef : undefined}
                             className="h-20 flex justify-center items-center"
                         >
                             {isFetchingNextPage ? (

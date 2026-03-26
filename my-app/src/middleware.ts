@@ -43,7 +43,7 @@ export async function middleware(request: NextRequest) {
 
     // accessToken 없고 refreshToken만 있으면 refresh 페이지로 이동
     if (!accessToken && refreshToken) {
-        const url = new URL('api/auth/refresh', request.url);
+        const url = new URL('/api/auth/refresh', request.url);
         url.searchParams.set('redirect', request.nextUrl.pathname);
         return NextResponse.redirect(url);
     }
@@ -52,5 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/', '/login', '/home'],
+    matcher: ['/', '/login', '/home', '/board/:path*'],
 };

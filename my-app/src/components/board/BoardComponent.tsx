@@ -5,7 +5,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createBoard, deleteBoard, fetchBoards, updateBoard } from '@/fetchData/board';
+import Link from 'next/link';
+import { createBoard, deleteBoard, updateBoard } from '@/fetchData/board';
+import { queryKeys } from '@/lib/query-keys';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -16,9 +18,8 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import type { Board } from '@/types/board'; // 스키마 정의
+import type { Board } from '@/types/board';
 
-// 스키마 정의
 const boardSchema = z.object({
     title: z.string().min(1, '제목을 입력해주세요'),
     content: z.string().min(1, '내용을 입력해주세요'),
@@ -31,21 +32,18 @@ export default function BoardComponent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBoard, setEditingBoard] = useState<Board | null>(null);
 
-    // 1. 데이터 조회 (Read)
+    // 1. 데이터 조회 (Read) - 키와 함수를 통합하여 호출
     const {
         data: boards,
         isLoading,
         error,
-    } = useQuery({
-        queryKey: ['boards'],
-        queryFn: () => fetchBoards(),
-    });
+    } = useQuery(queryKeys.board.all());
 
     // 2. 데이터 생성 (Create)
     const createMutation = useMutation({
         mutationFn: createBoard,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['boards'] });
+            queryClient.invalidateQueries(queryKeys.board.all());
             setIsModalOpen(false);
             reset();
         },
@@ -58,8 +56,9 @@ export default function BoardComponent() {
     const updateMutation = useMutation({
         mutationFn: (data: { id: string; payload: BoardFormData }) =>
             updateBoard(data.id, data.payload),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['boards'] });
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries(queryKeys.board.all());
+            queryClient.invalidateQueries(queryKeys.board.detail(variables.id));
             setIsModalOpen(false);
             setEditingBoard(null);
             reset();
@@ -73,7 +72,7 @@ export default function BoardComponent() {
     const deleteMutation = useMutation({
         mutationFn: deleteBoard,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['boards'] });
+            queryClient.invalidateQueries(queryKeys.board.all());
         },
         onError: (err) => {
             alert('게시글 삭제 실패: ' + err);
@@ -169,29 +168,39 @@ export default function BoardComponent() {
                 {boards?.map((board) => (
                     <div
                         key={board.id}
-                        className="border p-4 rounded-lg shadow-sm bg-white dark:bg-gray-800"
+                        className="border p-4 rounded-lg shadow-sm bg-white dark:bg-gray-800 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                         <div className="flex justify-between items-start">
-                            <div>
-                                <h3 className="font-semibold text-lg">{board.title}</h3>
-                                <p className="text-gray-500 text-sm mb-2">
-                                    작성자: {board.author_name || board.author_email} |
-                                    {new Date(board.created_at).toLocaleDateString()}
-                                </p>
-                                <p className="whitespace-pre-wrap">{board.content}</p>
+                            <div className="flex-1 cursor-pointer">
+                                <Link href={`/board/${board.id}`}>
+                                    <h3 className="font-semibold text-lg hover:underline">{board.title}</h3>
+                                    <p className="text-gray-500 text-sm mb-2">
+                                        작성자: {board.author_name || board.author_email} |
+                                        {new Date(board.created_at).toLocaleDateString()}
+                                    </p>
+                                    <p className="whitespace-pre-wrap line-clamp-2 text-gray-700 dark:text-gray-300">
+                                        {board.content}
+                                    </p>
+                                </Link>
                             </div>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 ml-4">
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => handleEdit(board)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        handleEdit(board);
+                                    }}
                                 >
                                     수정
                                 </Button>
                                 <Button
                                     variant="destructive"
                                     size="sm"
-                                    onClick={() => deleteMutation.mutate(board.id)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        deleteMutation.mutate(board.id);
+                                    }}
                                 >
                                     삭제
                                 </Button>

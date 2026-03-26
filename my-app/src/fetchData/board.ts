@@ -17,9 +17,9 @@ export const fetchBoards = async (cookie?: string) => {
 /**
  * 게시글 상세 조회
  */
-export const fetchBoardById = async (id: string) => {
+export const fetchBoardById = async (id: string, cookie?: string) => {
     try {
-        const data = await createKy().get(`board/${id}`).json<Board>();
+        const data = await createKy(cookie).get(`board/${id}`).json<Board>();
         return data;
     } catch (error) {
         console.error(`❌ 게시글(${id}) 조회 실패:`, error);
