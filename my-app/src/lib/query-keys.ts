@@ -23,6 +23,11 @@ export const queryKeys = createQueryKeyStore({
             // 3. SSR과 CSR 환경에서 키가 달라져 Hydration이 깨지는 것을 막기 위해 cookie 파라미터를 키 배열에 포함하지 않음.
             queryKey: [] as any,
             queryFn: () => fetchBoards(cookie),
+            select: (data) =>
+                data.map((user) => ({
+                    ...user,
+                    name: `${user.name} (가공됨)`,
+                })),
         }),
         /**
          * [게시판 단건 상세 조회]
@@ -57,7 +62,7 @@ export const queryKeys = createQueryKeyStore({
                 }),
         }),
         paginated: (page: number, cookie?: string) => ({
-            queryKey: [page] as any,
+            queryKey: [page],
             queryFn: () => fetchPaginatedItems2({ page, cookieString: cookie }),
         }),
     },

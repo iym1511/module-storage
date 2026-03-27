@@ -14,11 +14,6 @@ export default function UserList({ initialData }: UserListProps) {
     const { data: users, isLoading } = useQuery({
         ...queryKeys.user.list(),
         initialData: initialData, // 초기 데이터 활용
-        select: (data) =>
-            data.map((user) => ({
-                ...user,
-                name: `${user.name} (가공됨)`,
-            })),
     });
 
     if (isLoading) {
