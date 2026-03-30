@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
  *
  * 따라서 백엔드 응답 Body의 토큰을 사용하여 Next.js에서 명시적으로 쿠키를 설정(response.cookies.set)하는 방식으로 변경했습니다.
  * 이는 Refresh API와 동일한 방식이며, 안정적인 쿠키 설정과 즉각적인 클라이언트 반영을 보장합니다.
+ * 🚨 [도메인 출처가 달라서그럼 Next api 는 동일출처라 즉시 반영]
  */
 export async function POST(request: NextRequest) {
     try {
