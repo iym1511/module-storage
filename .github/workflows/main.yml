@@ -89,7 +89,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
 
-      # 배포 디렉토리 (없으면 생성)
+            # 배포 디렉토리 (없으면 생성)
             mkdir -p ~/apps/my-node
             cd ~/apps/my-node
 
