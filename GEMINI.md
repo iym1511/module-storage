@@ -310,7 +310,7 @@ export function useInfiniteScroll({ fetchNextPage, ...options }: UseInfiniteScro
 ```
 
 **사용 예시:**
-```tsx
+// ...
 const { ref } = useInfiniteScroll({
   fetchNextPage,
   hasNextPage,
@@ -325,8 +325,35 @@ return (
 );
 ```
 
-### SSR 프리페칭 (Server Component)
+#### 4. 데이터 전환 최적화 (Data Transition UX)
+- **대상:** 페이지네이션(Pagination), 검색 필터링(Search/Filter) 등 클라이언트 사이드에서 `queryKey`가 변경되어 목록이 갱신되는 영역.
+- **패턴:** 새로운 데이터를 불러오는 동안 화면이 깜빡이거나 빈 화면이 노출되는 것을 방지하기 위해 `placeholderData: keepPreviousData`를 사용합니다.
+- **상태 활용:** `isPlaceholderData` 값을 사용하여 데이터가 '교체 중'임을 시각적으로 표현(예: `opacity-50`, 스피너 노출, 버튼 비활성화 등)합니다.
 
+```tsx
+'use client';
+
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
+
+// 페이지네이션 & 검색 필터 최적화 예시
+export default function SearchList({ keyword, page }: { keyword: string; page: number }) {
+  const { data, isPlaceholderData } = useQuery({
+    ...queryKeys.board.search(keyword, page),
+    // 💡 검색어나 페이지가 바뀌어도 새로운 데이터가 올 때까지 기존 목록을 유지하여 깜빡임 방지
+    placeholderData: keepPreviousData, 
+  });
+
+  return (
+    <div className={isPlaceholderData ? 'opacity-50 pointer-events-none' : 'opacity-100'}>
+       {/* 검색 결과 리스트... */}
+    </div>
+  );
+}
+```
+
+### SSR 프리페칭 (Server Component)
+// ...
 ```tsx
 // src/app/(afterLogin)/home/page.tsx (실제 구현 예시)
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
