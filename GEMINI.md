@@ -343,10 +343,38 @@ export default function SearchList({ keyword, page }: { keyword: string; page: n
     // 💡 검색어나 페이지가 바뀌어도 새로운 데이터가 올 때까지 기존 목록을 유지하여 깜빡임 방지
     placeholderData: keepPreviousData, 
   });
-
+// ...
   return (
     <div className={isPlaceholderData ? 'opacity-50 pointer-events-none' : 'opacity-100'}>
        {/* 검색 결과 리스트... */}
+    </div>
+  );
+}
+```
+
+#### 5. 실시간 데이터 폴링 (Real-time Data Polling)
+- **대상:** 대시보드, 알림 숫자, 실시간 상태 확인 등 실시간에 가까운 최신 데이터 유지가 필요한 경우.
+- **패턴:** `refetchInterval` 옵션을 사용하여 일정 주기마다 자동으로 데이터를 다시 불러옵니다.
+- **주의사항:** 브라우저 탭이 활성화된 상태에서만 동작하는 것이 기본값이며, 백그라운드에서도 폴링이 필요하다면 `refetchIntervalInBackground: true`를 추가로 설정합니다.
+
+```tsx
+'use client';
+
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
+
+export default function RealTimeStatus() {
+  const { data } = useQuery({
+    ...queryKeys.status.all(),
+    // 💡 5초마다 데이터를 자동으로 다시 불러옴 (단위: ms)
+    refetchInterval: 5000, 
+    // 필요 시: 탭이 백그라운드에 있어도 폴링 유지
+    // refetchIntervalInBackground: true, 
+  });
+
+  return (
+    <div>
+      현재 상태: {data?.status}
     </div>
   );
 }

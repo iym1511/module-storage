@@ -33,11 +33,7 @@ export default function BoardComponent() {
     const [editingBoard, setEditingBoard] = useState<Board | null>(null);
 
     // 1. 데이터 조회 (Read) - 키와 함수를 통합하여 호출
-    const {
-        data: boards,
-        isLoading,
-        error,
-    } = useQuery(queryKeys.board.all());
+    const { data: boards, isLoading, error } = useQuery(queryKeys.board.all());
 
     // 2. 데이터 생성 (Create)
     const createMutation = useMutation({
@@ -171,14 +167,16 @@ export default function BoardComponent() {
                         className="border p-4 rounded-lg shadow-sm bg-white dark:bg-gray-800 transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
                     >
                         <div className="flex justify-between items-start">
-                            <div className="flex-1 cursor-pointer">
+                            <div className="flex-1 cursor-pointer min-w-0">
                                 <Link href={`/board/${board.id}`}>
-                                    <h3 className="font-semibold text-lg hover:underline">{board.title}</h3>
+                                    <h3 className="font-semibold text-lg hover:underline">
+                                        {board.title}
+                                    </h3>
                                     <p className="text-gray-500 text-sm mb-2">
                                         작성자: {board.author_name || board.author_email} |
                                         {new Date(board.created_at).toLocaleDateString()}
                                     </p>
-                                    <p className="whitespace-pre-wrap line-clamp-2 text-gray-700 dark:text-gray-300">
+                                    <p className="whitespace-pre-wrap break-all line-clamp-2 w-full text-gray-700 dark:text-gray-300">
                                         {board.content}
                                     </p>
                                 </Link>

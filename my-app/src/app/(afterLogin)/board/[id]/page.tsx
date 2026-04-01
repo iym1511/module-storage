@@ -1,7 +1,6 @@
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import { cookies } from 'next/headers';
 import BoardDetail from '@/components/board/BoardDetail';
-import { fetchBoardById } from '@/fetchData/board';
 import { queryKeys } from '@/lib/query-keys';
 
 interface PageProps {
@@ -19,7 +18,7 @@ export default async function BoardDetailPage({ params }: PageProps) {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <div className="container mx-auto py-10">
+            <div className="mx-auto py-10">
                 <BoardDetail id={id} />
             </div>
         </HydrationBoundary>
