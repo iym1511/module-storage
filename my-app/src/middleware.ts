@@ -35,9 +35,9 @@ export async function middleware(request: NextRequest) {
             if (refreshToken) {
                 const url = new URL('/api/auth/refresh', request.url); // Next.js API Route 이동
                 url.searchParams.set('redirect', request.nextUrl.pathname); // 리다이렉트 될 때 원래 있던 페이지로 돌아감
-                return NextResponse.redirect(url);
+                return NextResponse.rewrite(url);
             }
-            return NextResponse.redirect(new URL('/login', request.url));
+            return NextResponse.rewrite(new URL('/login', request.url));
         }
     }
 
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     if (!accessToken && refreshToken) {
         const url = new URL('/api/auth/refresh', request.url);
         url.searchParams.set('redirect', request.nextUrl.pathname);
-        return NextResponse.redirect(url);
+        return NextResponse.rewrite(url);
     }
 
     return NextResponse.next();

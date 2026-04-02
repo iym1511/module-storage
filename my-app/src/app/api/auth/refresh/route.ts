@@ -1,130 +1,111 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// GET (페이지 이동용)
-// 사용자가 직접 URL을 입력하거나, 서버사이드(Middleware)에서 페이지를 통째로 옮길 때 사용합니다.
-// 로직이 끝나면 NextResponse.redirect()를 통해 특정 페이지(홈 등)로 브라우저를 강제 이동시킵니다.
-// ⚠️ [2026-03-10 수정] : ky.create 와 middleware.ts 에서 둘다 GET으로 요청하면 분리필요x
-export async function GET(request: NextRequest) {
-    const refreshToken = request.cookies.get('refresh_token')?.value;
+/**
+ * 🛠️ 설계 변경 핵심 요약:
+ * 1. 역할 분리 (Separation of Concerns): 미들웨어(페이지 이동)와 클라이언트(데이터 요청)의 목적에 맞는 전용 핸들러 제공.
+ * 2. 중복 제거 (DRY): 공통 로직을 함수화하여 보안 정책(쿠키 옵션) 및 백엔드 통신 로직의 일관성 보장.
+ * 3. 효율성 최적화: 배경 요청(Silent Refresh) 시 불필요한 리다이렉트와 HTML 다운로드를 방지하여 네트워크 비용 절감.
+ */
 
-    if (!refreshToken) {
-        return NextResponse.redirect(new URL('/login', request.url));
-    }
-
-    // 🔥 백엔드에 refresh 요청
+/**
+ * [공통] 백엔드 서버에 토큰 갱신을 요청하는 함수
+ * - 관리 포인트 단일화: 백엔드 엔드포인트나 통신 방식 변경 시 이 함수만 수정하면 됨.
+ */
+async function fetchNewTokens(refreshToken: string) {
     const backendResponse = await fetch(`${process.env.BACKEND_URL}/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ refreshToken }),
     });
 
-    // 🔥 실패 시 로그인
-    if (!backendResponse.ok) {
+    if (!backendResponse.ok) return null;
+
+    return await backendResponse.json(); // { access_token, refresh_token }
+}
+
+/**
+ * [공통] 브라우저에 토큰 쿠키를 구워주는 함수
+ * - 보안 일관성: httpOnly, secure, sameSite 등 보안 옵션을 한 곳에서 제어하여 설정 누락 방지.
+ * - MaxAge 최적화: 엑세스 토큰(15분), 리프레시 토큰(7일)으로 현실적인 유지 시간 설정.
+ */
+function setTokenCookies(response: NextResponse, access_token: string, refresh_token: string) {
+    response.cookies.set('access_token', access_token, {
+        httpOnly: true, // XSS 공격 방지 (JS 접근 불가)
+        secure: true,   // HTTPS 환경 강제
+        sameSite: 'lax', // CSRF 방어와 UX(링크 클릭 이동) 사이의 균형
+        maxAge: 15 * 60, // 15분 (일반적인 보안 권장 사항)
+        path: '/',
+    });
+
+    if (refresh_token) {
+        response.cookies.set('refresh_token', refresh_token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            maxAge: 7 * 24 * 60 * 60, // 7일
+            path: '/',
+        });
+    }
+}
+
+/**
+ * [GET] 미들웨어 및 페이지 이동 전용 핸들러
+ * - 목적: 사용자가 엑세스 토큰 없이 페이지에 접근했을 때, 토큰 갱신 후 '원래 가려던 페이지'로 자동 이동시킴.
+ * - 특징: Cache-Control 설정을 통해 브라우저가 낡은 토큰 정보를 캐싱하지 않도록 강제함.
+ */
+export async function GET(request: NextRequest) {
+    const refreshToken = request.cookies.get('refresh_token')?.value;
+    
+    // 리프레시 토큰조차 없으면 즉시 로그인 페이지로 추방
+    if (!refreshToken) return NextResponse.redirect(new URL('/login', request.url));
+
+    const tokens = await fetchNewTokens(refreshToken);
+    
+    // 갱신 실패 시 (리프레시 토큰 만료 등): 기존 쿠키를 삭제하고 로그인 페이지로 유도
+    if (!tokens) {
         const res = NextResponse.redirect(new URL('/login', request.url));
         res.cookies.delete('access_token');
         res.cookies.delete('refresh_token');
         return res;
     }
 
-    // 🔥 백엔드에서 access, refresh 둘 다 받기
-    const { access_token, refresh_token } = await backendResponse.json();
-
+    // 성공 시: 원래 가려던 페이지(redirect 파라미터) 또는 홈으로 리다이렉트
     const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/home';
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
-
-    // 🔥 accessToken 쿠키 재설정
-    response.cookies.set('access_token', access_token, {
-        // false = JavaScript로 접근 가능 (document.cookie로 읽을 수 있음)
-        // false = 프론트에서 토큰을 직접 사용할 수 있음 (API 헤더에 넣기 등)
-        // ⚠️ XSS 공격에 취약할 수 있으므로 주의 필요
-        httpOnly: true, // 🔥 절대 프론트 접근 불가 (보안 핵심)
-
-        // HTTPS 연결에서만 쿠키 전송 (HTTP에서는 전송 안 됨)
-        // 단, localhost는 예외로 HTTP에서도 작동함
-        // 프로덕션에서는 반드시 true로 설정해야 함
-        // httpOnly true일때  이것도 true가 함께 적용됨
-        secure: true, // 🔥 HTTPS 필수 (로컬에선 false)
-
-        // 다른 도메인(cross-site)에서의 요청에도 쿠키 전송 허용
-        // CORS API 호출, iframe 등에서 필요할 때 사용
-        // 'lax' : Strict와 비슷하지만, **"링크 타고 들어오는 이동(GET)"**은 허용해 줌.
-        // ⚠️ 'none' 사용 시 반드시 secure: true 필요
-        sameSite: 'lax', // 🔥 cross-site 요청시 쿠키 전달 허용
-        maxAge: 15, // 15분
-        path: '/',
-    });
-
-    // 🔥 refreshToken 쿠키 재설정 (여기 추가)
-    if (refresh_token) {
-        response.cookies.set('refresh_token', refresh_token, {
-            httpOnly: true,
-            secure: true,
-            // 가장 엄격한 CSRF 방어 모드
-            // 'strict' = 완전히 같은 사이트 내에서만 쿠키 전송
-            // 외부 링크 클릭해서 들어와도 쿠키 안 보냄
-            // ⚠️ UX 저하 가능: 이메일/카카오톡 링크로 접속 시 로그인 안 된 것처럼 보일 수 있음
-            // 'lax'로 변경 고려 (보안과 UX 균형)
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60,
-            path: '/',
-        });
-    }
-
+    
+    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨
+    response.headers.set('Cache-Control', 'no-store');
+    
+    setTokenCookies(response, tokens.access_token, tokens.refresh_token);
     return response;
 }
 
-// POST (데이터 요청용/Silent Refresh)
-// 지금처럼 인피니티 스크롤 같은 배경 API 요청 중에 토큰을 갱신할 때 사용합니다.
-// 페이지가 이동되면 안 되고, 단순히 쿠키만 구워준 뒤 JSON 응답({ message: "success" })을 보내야 합니다.
-// 만약 여기서 GET처럼 리다이렉트를 해버리면, API 요청 결과로 데이터 대신 "홈페이지 HTML 코드"가 날아와서 에러가 나게 됩니다.
-// export async function POST(request: NextRequest) {
-//     const refreshToken = request.cookies.get('refresh_token')?.value;
-//
-//     if (!refreshToken) {
-//         return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
-//     }
-//
-//     // 🔥 백엔드에 refresh 요청
-//     const backendResponse = await fetch(`${process.env.BACKEND_URL}/refresh`, {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ refreshToken }),
-//     });
-//
-//     // 🔥 실패 시 401 반환
-//     if (!backendResponse.ok) {
-//         const errorData = await backendResponse.json();
-//         const res = NextResponse.json(errorData, { status: backendResponse.status });
-//         console.log('출력!', res);
-//         res.cookies.delete('access_token');
-//         res.cookies.delete('refresh_token');
-//         return res;
-//     }
-//
-//     // 🔥 백엔드에서 access, refresh 둘 다 받기
-//     const { access_token, refresh_token } = await backendResponse.json();
-//
-//     const response = NextResponse.json({ message: 'Refreshed successfully' });
-//
-//     // 🔥 accessToken 쿠키 재설정
-//     response.cookies.set('access_token', access_token, {
-//         httpOnly: false,
-//         secure: true,
-//         sameSite: 'lax',
-//         maxAge: 15, // 15분
-//         path: '/',
-//     });
-//
-//     // 🔥 refreshToken 쿠키 재설정
-//     if (refresh_token) {
-//         response.cookies.set('refresh_token', refresh_token, {
-//             httpOnly: true,
-//             secure: true,
-//             sameSite: 'strict',
-//             maxAge: 7 * 24 * 60 * 60,
-//             path: '/',
-//         });
-//     }
-//
-//     return response;
-// }
+/**
+ * [POST] 클라이언트(ky, fetch) Silent Refresh 전용 핸들러
+ * - 목적: 배경에서 API 호출 중 401 에러가 났을 때, 페이지 이동 없이 쿠키만 조용히 갱신.
+ * - 장점 (Redirect 대비):
+ *   1. 네트워크 부하 감소: 페이지 전체 HTML 대신 짧은 JSON 메시지만 주고받음.
+ *   2. 데이터 무결성: 클라이언트가 JSON을 기대하는 AJAX 요청 중에 HTML이 섞여 들어오는 파싱 에러를 근본적으로 차단.
+ *   3. 명확한 상태 코드: 성공 시 200, 실패 시 401을 명확히 반환하여 클라이언트 측 예외 처리 용이.
+ */
+export async function POST(request: NextRequest) {
+    const refreshToken = request.cookies.get('refresh_token')?.value;
+    
+    if (!refreshToken) {
+        return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
+    }
+
+    const tokens = await fetchNewTokens(refreshToken);
+    
+    if (!tokens) {
+        const res = NextResponse.json({ message: 'Refresh failed' }, { status: 401 });
+        res.cookies.delete('access_token');
+        res.cookies.delete('refresh_token');
+        return res;
+    }
+
+    // 페이지 이동 없이 쿠키만 세팅하고 성공 메시지 반환
+    const response = NextResponse.json({ message: 'Refreshed successfully' });
+    setTokenCookies(response, tokens.access_token, tokens.refresh_token);
+    return response;
+}
