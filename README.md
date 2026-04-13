@@ -125,7 +125,7 @@ export const createKy = (cookie?: string) => {
 ```
 
 ### 2. 인증 미들웨어 (Next.js Middleware + Jose)
-**위치:** `my-app/src/middleware.ts`
+**위치:** `my-app/src/proxy.ts`
 
 Next.js의 Edge Runtime 환경에서는 Node.js의 `jsonwebtoken` 모듈이 무거워 동작하지 않을 수 있습니다. 따라서 가벼운 `jose` 라이브러리를 사용합니다.
 

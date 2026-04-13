@@ -22,7 +22,7 @@ my-app/src/
 ├── fetchData/              # TanStack Query hooks
 ├── util/                   # API client (Ky wrapper)
 ├── lib/                    # Utilities
-└── middleware.ts           # Auth guard (jose)
+└── proxy.ts           # Auth guard (jose)
 ```
 
 ## WHERE TO LOOK
@@ -30,7 +30,7 @@ my-app/src/
 | Task | Location | Notes |
 |------|----------|-------|
 | API client | src/util/api.ts | Ky with interceptors |
-| Auth middleware | src/middleware.ts | jose for Edge Runtime |
+| Auth middleware | src/proxy.ts | jose for Edge Runtime |
 | Infinite scroll | src/fetchData/fetch-infinite.ts | useInfiniteQuery |
 | Pagination | src/fetchData/fetch-pagination.ts | Cursor-based |
 | Login page | src/app/(beforeLogin)/login/ | |
@@ -56,7 +56,7 @@ my-app/src/
 
 ### Auth (jose)
 ```typescript
-// src/middleware.ts
+// src/proxy.ts
 // - Verify access_token on every request
 // - Redirect to /login if no valid token
 // - Use jose (NOT jsonwebtoken) for Edge Runtime

@@ -31,7 +31,7 @@ async function fetchNewTokens(refreshToken: string) {
 function setTokenCookies(response: NextResponse, access_token: string, refresh_token: string) {
     response.cookies.set('access_token', access_token, {
         httpOnly: true, // XSS 공격 방지 (JS 접근 불가)
-        secure: true,   // HTTPS 환경 강제
+        secure: true, // HTTPS 환경 강제
         sameSite: 'lax', // CSRF 방어와 UX(링크 클릭 이동) 사이의 균형
         maxAge: 15 * 60, // 15분 (일반적인 보안 권장 사항)
         path: '/',
@@ -55,12 +55,12 @@ function setTokenCookies(response: NextResponse, access_token: string, refresh_t
  */
 export async function GET(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
-    
+
     // 리프레시 토큰조차 없으면 즉시 로그인 페이지로 추방
     if (!refreshToken) return NextResponse.redirect(new URL('/login', request.url));
 
     const tokens = await fetchNewTokens(refreshToken);
-    
+
     // 갱신 실패 시 (리프레시 토큰 만료 등): 기존 쿠키를 삭제하고 로그인 페이지로 유도
     if (!tokens) {
         const res = NextResponse.redirect(new URL('/login', request.url));
@@ -72,10 +72,10 @@ export async function GET(request: NextRequest) {
     // 성공 시: 원래 가려던 페이지(redirect 파라미터) 또는 홈으로 리다이렉트
     const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/home';
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
-    
-    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨
+
+    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨 (기본 캐싱이 안되어서 설정 안해도됨)
     response.headers.set('Cache-Control', 'no-store');
-    
+
     setTokenCookies(response, tokens.access_token, tokens.refresh_token);
     return response;
 }
@@ -90,13 +90,13 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
     const refreshToken = request.cookies.get('refresh_token')?.value;
-    
+
     if (!refreshToken) {
         return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
     }
 
     const tokens = await fetchNewTokens(refreshToken);
-    
+
     if (!tokens) {
         const res = NextResponse.json({ message: 'Refresh failed' }, { status: 401 });
         res.cookies.delete('access_token');

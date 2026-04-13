@@ -32,7 +32,7 @@ fullstackProject/
 | Task | Location |
 |------|----------|
 | Frontend API client | my-app/src/util/api.ts |
-| Auth middleware | my-app/src/middleware.ts |
+| Auth middleware | my-app/src/proxy.ts |
 | TanStack Query hooks | my-app/src/fetchData/ |
 | Login page | my-app/src/app/(beforeLogin)/login/ |
 | Home page | my-app/src/app/(afterLogin)/home/ |

@@ -10,10 +10,9 @@ interface UserListProps {
     initialData?: UserType[];
 }
 
-export default function UserList({ initialData }: UserListProps) {
+export default function UserList() {
     const { data: users, isLoading } = useQuery({
         ...queryKeys.user.list(),
-        initialData: initialData, // 초기 데이터 활용
     });
 
     if (isLoading) {
