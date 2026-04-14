@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/home';
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
-    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨 (기본 캐싱이 안되어서 설정 안해도됨)
+    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨 (기본 캐싱 셋팅이 캐싱이 안되어서 설정 안해도됨)
     response.headers.set('Cache-Control', 'no-store');
 
     setTokenCookies(response, tokens.access_token, tokens.refresh_token);
