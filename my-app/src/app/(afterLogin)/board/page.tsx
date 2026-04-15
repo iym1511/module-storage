@@ -9,7 +9,10 @@ export default async function BoardPage() {
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
-    await queryClient.prefetchQuery(queryKeys.board.all(cookieString));
+    await queryClient.prefetchQuery({
+        ...queryKeys.board.all,
+        queryFn: () => fetchBoards(cookieString),
+    });
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>

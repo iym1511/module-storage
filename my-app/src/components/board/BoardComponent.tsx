@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
-import { createBoard, deleteBoard, updateBoard } from '@/fetchData/board';
+import { createBoard, deleteBoard, fetchBoards, updateBoard } from '@/fetchData/board';
 import { queryKeys } from '@/lib/query-keys';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,13 +33,25 @@ export default function BoardComponent() {
     const [editingBoard, setEditingBoard] = useState<Board | null>(null);
 
     // 1. 데이터 조회 (Read) - 키와 함수를 통합하여 호출
-    const { data: boards, isLoading, error } = useQuery(queryKeys.board.all());
+    const {
+        data: boards,
+        isLoading,
+        error,
+    } = useQuery({
+        ...queryKeys.board.all,
+        queryFn: () => fetchBoards(),
+        select: (data) =>
+            data.map((user) => ({
+                ...user,
+                name: `${user.name} (가공됨)`,
+            })),
+    });
 
     // 2. 데이터 생성 (Create)
     const createMutation = useMutation({
         mutationFn: createBoard,
         onSuccess: () => {
-            queryClient.invalidateQueries(queryKeys.board.all());
+            queryClient.invalidateQueries(queryKeys.board.all);
             setIsModalOpen(false);
             reset();
         },
@@ -53,7 +65,7 @@ export default function BoardComponent() {
         mutationFn: (data: { id: string; payload: BoardFormData }) =>
             updateBoard(data.id, data.payload),
         onSuccess: (_, variables) => {
-            queryClient.invalidateQueries(queryKeys.board.all());
+            queryClient.invalidateQueries(queryKeys.board.all);
             queryClient.invalidateQueries(queryKeys.board.detail(variables.id));
             setIsModalOpen(false);
             setEditingBoard(null);
@@ -68,7 +80,7 @@ export default function BoardComponent() {
     const deleteMutation = useMutation({
         mutationFn: deleteBoard,
         onSuccess: () => {
-            queryClient.invalidateQueries(queryKeys.board.all());
+            queryClient.invalidateQueries(queryKeys.board.all);
         },
         onError: (err) => {
             alert('게시글 삭제 실패: ' + err);

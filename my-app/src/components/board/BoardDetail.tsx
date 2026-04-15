@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { queryKeys } from '@/lib/query-keys';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
+import { fetchBoardById } from '@/fetchData/board';
 
 interface BoardDetailProps {
     id: string;
@@ -13,7 +14,14 @@ interface BoardDetailProps {
 export default function BoardDetail({ id }: BoardDetailProps) {
     const router = useRouter();
 
-    const { data: board, isLoading, error } = useQuery(queryKeys.board.detail(id));
+    const {
+        data: board,
+        isLoading,
+        error,
+    } = useQuery({
+        ...queryKeys.board.detail(id),
+        queryFn: () => fetchBoardById(id),
+    });
 
     if (isLoading) return <div className="p-10 text-center">로딩 중...</div>;
     if (error || !board)

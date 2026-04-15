@@ -3,7 +3,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from '@/components/ui/skeleton';
-import { UserType } from '../../../../fetchData/fetch-get';
+import { apiTest2, UserType } from '../../../../fetchData/fetch-get';
 import { queryKeys } from '@/lib/query-keys';
 
 interface UserListProps {
@@ -12,7 +12,8 @@ interface UserListProps {
 
 export default function UserList() {
     const { data: users, isLoading } = useQuery({
-        ...queryKeys.user.list(),
+        ...queryKeys.user.list,
+        queryFn: () => apiTest2(),
     });
 
     if (isLoading) {

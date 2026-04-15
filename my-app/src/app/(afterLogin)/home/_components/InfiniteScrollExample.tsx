@@ -5,14 +5,12 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 // 무한스크롤 감지를 위해 react-intersection-observer 라이브러리 필요
 import { Card } from '@/components/ui/ui-Button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { getCookie } from 'cookies-next';
 import { queryKeys } from '@/lib/query-keys';
-import { FetchInfiniteResult } from '@/fetchData/fetch-infinite';
+import { fetchInfiniteItemsFromApi2, FetchInfiniteResult } from '@/fetchData/fetch-infinite';
 import { InfiniteData } from '@tanstack/query-core';
 import { useInfiniteScroll } from '@/hooks/use-infinite-scroll';
 
 export default function InfiniteScrollExample() {
-    const token = getCookie('access_token') as string | undefined;
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery<
         FetchInfiniteResult, // 1. queryFn이 리턴하는 순수 데이터 타입
         Error, // 2. 에러 발생 시 타입
@@ -20,14 +18,18 @@ export default function InfiniteScrollExample() {
         any, // 4. queryKey의 타입
         number // 5. pageParam의 타입 (우리는 0, 1, 2... 숫자를 쓰므로)
     >({
-        ...queryKeys.home.infinite(token),
+        ...queryKeys.home.infinite,
         initialPageParam: 0,
+        queryFn: ({ pageParam }: { pageParam: number }) =>
+            fetchInfiniteItemsFromApi2({
+                pageParam,
+            }),
         getNextPageParam: ({ nextCursor }) => {
-            // nextCursor가 없으면 즉시 undefined 반환 (추가 로직 실행 안 함)
+            // nextCursor가 없으면 즉시 undefined 반환 (추가 로직(호출) 실행 안 함)
             if (!nextCursor) {
                 return undefined;
             }
-            // 알아서 배열의 마지막 index 반환
+            // 알아서 배열의 마지막 index 반환 (pageParam값이 됨)
             return nextCursor;
         },
     });
