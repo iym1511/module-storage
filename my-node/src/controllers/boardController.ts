@@ -46,8 +46,28 @@ export const getBoardById = async (req: Request, res: Response) => {
 };
 
 /**
- * 게시글 작성
- * POST /board
+ * @swagger
+ * /board:
+ *   post:
+ *     summary: 게시글 작성
+ *     tags: [Board]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [title, content]
+ *             properties:
+ *               title: { type: string, example: "안녕하세요" }
+ *               content: { type: string, example: "반갑습니다." }
+ *     responses:
+ *       201:
+ *         description: 작성 성공
+ *       401:
+ *         description: 인증 실패
  */
 export const createBoard = async (req: Request, res: Response) => {
   try {

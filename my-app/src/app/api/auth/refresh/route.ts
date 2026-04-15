@@ -69,11 +69,13 @@ export async function GET(request: NextRequest) {
         return res;
     }
 
-    // 성공 시: 원래 가려던 페이지(redirect 파라미터) 또는 홈으로 리다이렉트
-    const redirectUrl = request.nextUrl.searchParams.get('redirect') || '/home';
+    // 성공 시: 원래 가려던 페이지(redirect 파라미터) 또는 홈으로 리다이렉트 시킵니다.
+    // 500 에러 방지를 위해 Route Handler에서는 redirect를 사용하는 것이 가장 안전합니다.
+    const searchParams = request.nextUrl.searchParams;
+    const redirectUrl = searchParams.get('redirect') || '/home';
     const response = NextResponse.redirect(new URL(redirectUrl, request.url));
 
-    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨 (기본 캐싱 셋팅이 캐싱이 안되어서 설정 안해도됨)
+    // 중요: 토큰 페이지는 절대 캐싱되면 안 됨 (기본 캐싱이 안되어서 설정 안해도됨)
     response.headers.set('Cache-Control', 'no-store');
 
     setTokenCookies(response, tokens.access_token, tokens.refresh_token);
