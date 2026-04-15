@@ -203,21 +203,12 @@ export const createKy = (cookie?: string) => {
 // src/lib/query-keys.ts (실제 구현 예시)
 export const queryKeys = createQueryKeyStore({
   board: {
-    all: (cookie?: string) => ({
-      queryKey: [] as any,
-      queryFn: () => fetchBoards(cookie),
-    }),
+    all: null,
+    detail: (id: string) => [id],
   },
   home: {
-    infinite: (cookie?: string) => ({
-      queryKey: [] as any,
-      // 💡 context 객체의 타입을 명시하여 pageParam을 number로 인식하게 함
-      queryFn: ({ pageParam }: { pageParam: number }) =>
-              fetchInfiniteItemsFromApi2({
-                pageParam,
-                cookieString: cookie,
-              }),
-    }),
+    infinite: null,
+    paginated: (page: number) => [page],
   },
 });
 ```
@@ -238,13 +229,13 @@ export default function BoardComponent() {
   const queryClient = useQueryClient();
 
   // 1. 데이터 조회 (Read) - 키와 함수를 통합하여 호출
-  const { data: boards } = useQuery(queryKeys.board.all());
+  const { data: boards } = useQuery(queryKeys.board.all);
 
   // 2. 캐시 무효화 (Invalidate)
   const createMutation = useMutation({
     mutationFn: createBoard,
     onSuccess: () => {
-      queryClient.invalidateQueries(queryKeys.board.all());
+      queryClient.invalidateQueries(queryKeys.board.all);
     },
   });
   // ...
@@ -264,16 +255,27 @@ import type { InfiniteData } from '@tanstack/query-core';
 import type { FetchInfiniteResult } from '@/fetchData/fetch-infinite';
 
 export default function InfiniteScrollExample() {
-  const { data, fetchNextPage } = useInfiniteQuery<
-          FetchInfiniteResult,
-          Error,
-          InfiniteData<FetchInfiniteResult>,
-          any,
-          number
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, status } = useInfiniteQuery<
+          FetchInfiniteResult, // 1. queryFn이 리턴하는 순수 데이터 타입
+          Error, // 2. 에러 발생 시 타입
+          InfiniteData<FetchInfiniteResult>, // 3. 전체 데이터 구조 (InfiniteData로 감싸야 함!)
+          any, // 4. queryKey의 타입
+          number // 5. pageParam의 타입 (우리는 0, 1, 2... 숫자를 쓰므로)
   >({
-    ...queryKeys.home.infinite(token),
+    ...queryKeys.home.infinite,
     initialPageParam: 0,
-    getNextPageParam: ({ nextCursor }) => nextCursor ?? undefined,
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+            fetchInfiniteItemsFromApi2({
+              pageParam,
+            }),
+    getNextPageParam: ({ nextCursor }) => {
+      // nextCursor가 없으면 즉시 undefined 반환 (추가 로직(호출) 실행 안 함)
+      if (!nextCursor) {
+        return undefined;
+      }
+      // 알아서 배열의 마지막 index 반환 (pageParam값이 됨)
+      return nextCursor;
+    },
   });
   // ...
 }
@@ -340,6 +342,7 @@ import { queryKeys } from '@/lib/query-keys';
 export default function SearchList({ keyword, page }: { keyword: string; page: number }) {
   const { data, isPlaceholderData } = useQuery({
     ...queryKeys.board.search(keyword, page),
+    queryFn: () => fetchPaginatedItems2({keyword, page }),
     // 💡 검색어나 페이지가 바뀌어도 새로운 데이터가 올 때까지 기존 목록을 유지하여 깜빡임 방지
     placeholderData: keepPreviousData, 
   });
@@ -365,7 +368,7 @@ import { queryKeys } from '@/lib/query-keys';
 
 export default function RealTimeStatus() {
   const { data } = useQuery({
-    ...queryKeys.status.all(),
+    ...queryKeys.status.all,
     // 💡 5초마다 데이터를 자동으로 다시 불러옴 (단위: ms)
     refetchInterval: 5000, 
     // 필요 시: 탭이 백그라운드에 있어도 폴링 유지
@@ -396,12 +399,21 @@ async function Page() {
   // 모든 Query를 병렬로 Prefetch
   await Promise.all([
     // 일반 조회 프리페칭
-    queryClient.prefetchQuery(queryKeys.user.list(cookieString)),
+    queryClient.prefetchQuery({
+      ...queryKeys.user.list,
+      queryFn: () => apiTest2(cookieString),
+    }),
 
     // 무한 스크롤 프리페칭 (수동 캐스팅 활용)
     queryClient.prefetchInfiniteQuery({
-      ...queryKeys.home.infinite(cookieString),
+      ...queryKeys.home.infinite,
+      queryFn: ({ pageParam }: { pageParam: number }) =>
+              fetchInfiniteItemsFromApi2({
+                pageParam,
+                cookieString: cookieString,
+              }),
       initialPageParam: 0,
+      // lastPage를 일단 받은 다음, (lastPage as 타입) 형태로 꺼내 쓰기
       getNextPageParam: (lastPage) => (lastPage as FetchInfiniteResult).nextCursor,
     }),
   ]);
