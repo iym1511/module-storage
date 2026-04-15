@@ -1,5 +1,5 @@
 import {render, screen, waitFor} from '@testing-library/react';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import Login from './Login';
 
@@ -107,7 +107,7 @@ describe('Login 컴포넌트 테스트', () => {
     // ============================================
     it('로그인 버튼 클릭 시 API가 호출되고 페이지가 이동하는지 확인', async () => {
         // fetch 함수가 성공 응답을 반환하도록 설정
-        (global.fetch as any).mockResolvedValueOnce({
+        (global.fetch as Mock).mockResolvedValueOnce({
             ok: true,
             json: async () => ({ success: true }),
         });
@@ -145,7 +145,7 @@ describe('Login 컴포넌트 테스트', () => {
     // ============================================
     it('회원가입 버튼 클릭 시 API가 호출되는지 확인', async () => {
         // fetch 함수가 성공 응답을 반환하도록 설정
-        (global.fetch as any).mockResolvedValueOnce({
+        (global.fetch as Mock).mockResolvedValueOnce({
             ok: true,
             json: async () => ({ success: true, message: '회원가입 성공' }),
         });
@@ -168,8 +168,8 @@ describe('Login 컴포넌트 테스트', () => {
         const signupButton = screen.getByRole('button', { name: /회원가입/i });
         await userEvent.click(signupButton);
 // 🔍 디버깅: fetch가 호출되었는지 확인
-        console.log('fetch 호출 횟수:', (global.fetch as any).mock.calls.length);
-        console.log('fetch 호출 내역:', (global.fetch as any).mock.calls);
+        console.log('fetch 호출 횟수:', (global.fetch as Mock).mock.calls.length);
+        console.log('fetch 호출 내역:', (global.fetch as Mock).mock.calls);
 
         // fetch가 올바른 URL과 데이터로 호출되었는지 확인
         await waitFor(() => {
@@ -200,7 +200,7 @@ describe('Login 컴포넌트 테스트', () => {
     // ============================================
     it('회원가입 실패 시 에러 메시지 alert가 표시되는지 확인', async () => {
         // fetch 함수가 실패 응답을 반환하도록 설정
-        (global.fetch as any).mockResolvedValueOnce({
+        (global.fetch as Mock).mockResolvedValueOnce({
             ok: false,
             json: async () => ({ message: '이미 존재하는 이메일입니다' }),
         });
@@ -231,4 +231,4 @@ describe('Login 컴포넌트 테스트', () => {
         // 모킹 정리
         alertMock.mockRestore();
     });
-});
+});;

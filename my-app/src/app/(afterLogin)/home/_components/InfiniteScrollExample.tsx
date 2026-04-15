@@ -15,7 +15,7 @@ export default function InfiniteScrollExample() {
         FetchInfiniteResult, // 1. queryFn이 리턴하는 순수 데이터 타입
         Error, // 2. 에러 발생 시 타입
         InfiniteData<FetchInfiniteResult>, // 3. 전체 데이터 구조 (InfiniteData로 감싸야 함!)
-        any, // 4. queryKey의 타입
+        readonly unknown[], // 4. queryKey의 타입 (any 대신 명시)
         number // 5. pageParam의 타입 (우리는 0, 1, 2... 숫자를 쓰므로)
     >({
         ...queryKeys.home.infinite,

@@ -56,9 +56,9 @@ const dummyLocalList = [
 ];
 
 type LocalItem = {
-    idx: number | null;
-    cityNm: string | null;
-    localNm: string | null;
+    idx: number;
+    cityNm: string;
+    localNm: string;
 };
 
 type LocalState = {
@@ -87,7 +87,7 @@ export default function DrawerSlide() {
     // ---------------------------------------
     // 지역 필터
     // ---------------------------------------
-    const handleLocalFilter = (item: any) => {
+    const handleLocalFilter = (item: LocalItem) => {
         setLocalState((prev) => ({
             ...prev,
             temp: localState.temp?.idx === item.idx ? null : item,

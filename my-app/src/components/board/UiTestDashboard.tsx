@@ -217,8 +217,8 @@ const HeaderLink = ({ label, active = false }: { label: string; active?: boolean
   </a>
 );
 
-const CompactStatItem = ({ label, value, trend, color = 'default' }: { label: string; value: string; trend: string; color?: string }) => {
-  const colorMap: any = {
+const CompactStatItem = ({ label, value, trend, color = 'default' }: { label: string; value: string; trend: string; color?: 'red' | 'blue' | 'orange' | 'default' }) => {
+  const colorMap: Record<'red' | 'blue' | 'orange' | 'default', string> = {
     red: "text-red-500",
     blue: "text-blue-600",
     orange: "text-orange-500",
