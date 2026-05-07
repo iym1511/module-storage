@@ -8,8 +8,9 @@ export const createKy = (cookie?: string) => {
         prefix: isServer
             ? 'http://localhost:8000/' // ⚠️ SSR 시 실제 백엔드 주소 사용
             : '/ptc', // ⚠️ CSR 시 Next.js Rewrite 경로(/ptc -> localhost:8000) 사용
-        headers: cookie ? { Cookie: cookie } : undefined,
+        headers: cookie ? { Cookie: cookie } : undefined, // ssr 에서 요청할때는 헤더에 쿠키가 안담기기 때문에 수정으로 쿠키 삽입
         timeout: 10000, // 기본 타임아웃 10초 설정
+        // cache: 'no-store', // no-store를 사용하면 db 데이터 변경 유무와 상관없이 데이터를 패칭함
         retry: {
             limit: 2,
             methods: ['get', 'put', 'delete', 'patch'],

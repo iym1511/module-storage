@@ -9,7 +9,6 @@ import { fetchPaginatedItems2 } from '@/fetchData/fetch-pagination';
 
 async function Page() {
     const queryClient = new QueryClient();
-
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
